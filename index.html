@@ -143,7 +143,7 @@
         .streak-badge {
             display: inline-flex;
             align-items: center;
-            gap: 2.5px;
+            gap: 3px;
             color: var(--active-day);
             font-size: 13px;
             font-weight: 700;
@@ -153,11 +153,12 @@
 
         .streak-badge svg {
             animation: flameFlicker 2s ease-in-out infinite alternate;
+            transform-origin: bottom center;
         }
 
         @keyframes flameFlicker {
             0% { transform: scale(1) rotate(0deg); opacity: 0.95; }
-            100% { transform: scale(1.06) rotate(-2deg); opacity: 1; }
+            100% { transform: scale(1.08) rotate(-3deg); opacity: 1; }
         }
 
         .rings-container {
@@ -376,6 +377,9 @@
             const statusEl = document.getElementById('status');
             setWeeklyRange();
 
+            // ВАЖНО: Сначала показываем демо-данные с огоньками, чтобы вы убедились, что код отрисовки работает!
+            renderDemo();
+
             try {
                 const response = await fetch(SCRIPT_URL);
                 if (!response.ok) throw new Error("Network error");
@@ -384,10 +388,11 @@
                 
                 if (data.error) {
                     statusEl.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Ошибка API';
-                    renderDemo();
                     return;
                 }
 
+                // ВНИМАНИЕ: Если после успешной загрузки огоньки исчезают, 
+                // значит Google Таблица присылает пустое значение streak для всех участников!
                 render(data);
                 statusEl.innerHTML = '<i class="fa-solid fa-check"></i> Обновлено';
                 statusEl.classList.remove('anim-pulse');
@@ -395,7 +400,7 @@
             } catch (error) {
                 console.error("Ошибка загрузки:", error);
                 statusEl.innerHTML = '<i class="fa-solid fa-plug-circle-xmark"></i> Офлайн';
-                renderDemo();
+                statusEl.classList.remove('anim-pulse');
             }
         }
 
@@ -408,7 +413,7 @@
 
             const sorted = participants
                 .map(p => {
-                    // Максимально устойчивый парсинг переменной streak (поддерживает string, number, undefined, null)
+                    // Устойчивый парсинг переменной streak
                     let rawStreak = 0;
                     if (p.streak !== undefined && p.streak !== null) {
                         rawStreak = parseInt(p.streak, 10);
@@ -436,7 +441,7 @@
                 // Рендерим точный кастомный SVG-огонёк, если количество недель ударного режима СТРОГО больше 0
                 const streakHtml = p.streak > 0 
                     ? `<span class="streak-badge" title="Ударный режим: ${p.streak} нед.">
-                        <svg class="flame-icon" width="11" height="14" viewBox="0 0 11 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
+                        <svg class="flame-icon" width="11" height="14" viewBox="0 0 11 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 1px;">
                             <path d="M5.5 0C5.5 0 9 3.5 9 7C9 10 7 12.2 5 12.2C3 12.2 2.6 9.6 2.6 9.6C2.6 9.6 0.5 11 0.5 12.8C0.5 14 3 14 5 14C8.2 14 10.2 11 10.2 7.8C10.2 3.8 5.5 0 5.5 0Z" fill="#D97757"/>
                             <path d="M5.1 5.2C5.1 5.2 7.1 7.2 7.1 9.2C7.1 11.2 5.8 12 4.6 12C3.4 12 3.1 10.2 3.1 10.2C3.1 10.2 1.6 11.2 1.6 12.8C1.6 13.8 3.1 14.2 4.6 14.2C6.6 14.2 8.1 12.5 8.1 10.5C8.1 8 5.1 5.2 5.1 5.2Z" fill="#FFF" opacity="0.4"/>
                         </svg>
@@ -469,8 +474,8 @@
                 { name: "Соломин Денис", data: [1, 1, 1, 1, 1, 0, 0], streak: 1 },
                 { name: "Мурадян Акоп", data: [1, 1, 1, 1, 1, 1, 0], streak: 5 },
                 { name: "Халитов Михаил", data: [1, 1, 1, 0, 1, 0, 0], streak: 2 },
-                { name: "Толстоноженко Александр", data: [1, 0, 1, 1, 0, 0, 0], streak: 0 }, // 0 - огонек скроется
-                { name: "Ожидание данных...", data: [0, 0, 0, 0, 0, 0, 0], streak: 0 } // 0 - огонек скроется
+                { name: "Толстоноженко Александр", data: [1, 0, 1, 1, 0, 0, 0], streak: 0 }, // 0 - огонек скрыт
+                { name: "Ожидание данных...", data: [0, 0, 0, 0, 0, 0, 0], streak: 0 } // 0 - огонек скрыт
             ];
             render(demoData);
         }
