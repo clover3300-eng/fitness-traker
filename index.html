@@ -8,16 +8,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            /* Палитра Anthropic / Claude с измененными акцентами */
             --bg-main: #F9F6F1; 
             --card-bg: #ffffff; 
             --text-main: #1D1D1D;
             --text-muted: #666362;
-            --accent: #708A74; /* Элегантный шалфейно-зеленый для линии прогресса */
+            --accent: #708A74; 
             --accent-soft: #E8E2D9;
             --border: #E5E0D8;
-            --active-day: #D97757; /* Яркий терракотовый для выполненных дней и огонька */
-            --status-ok: #16A34A; /* Зеленый для успешного обновления */
+            --active-day: #D97757; 
+            --status-ok: #16A34A; 
         }
 
         body {
@@ -29,53 +28,29 @@
 
         .section-header {
             margin-bottom: 20px;
-            padding: 0 4px 12px 4px; /* Добавлен отступ снизу */
-            border-bottom: 1px dashed var(--border); /* Линия разделения, как в легенде */
+            padding: 0 4px 12px 4px;
+            border-bottom: 1px dashed var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 10px;
         }
 
-        /* Дизайн главного заголовка в стиле Anthropic */
         .section-title {
             font-size: 15px;
             letter-spacing: -0.01em;
-            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 6px;
-            white-space: nowrap;
         }
 
-        .section-title i {
-            font-size: 12px;
-            color: var(--active-day);
-            opacity: 0.9;
-        }
-
-        .section-title span {
-            font-weight: 400;
-            color: var(--text-muted);
-        }
-
-        .section-title strong {
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .info-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
-        }
+        .section-title i { font-size: 12px; color: var(--active-day); }
 
         .status-text {
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.04em;
-            color: var(--active-day); /* Используем терракотовый для статуса обновления */
+            color: var(--active-day);
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -86,14 +61,9 @@
             font-size: 10px;
             color: var(--text-muted);
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
             padding: 2.5px 8px;
             background: var(--accent-soft);
             border-radius: 100px;
-            white-space: nowrap;
-            letter-spacing: -0.01em;
         }
 
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -103,381 +73,191 @@
             background-color: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 6px 12px;
+            padding: 8px 12px;
             display: grid;
-            /* Сетка: Ранг | Имя | Квадраты | Линия | Счет */
-            grid-template-columns: 20px 190px 75px 1fr auto;
+            grid-template-columns: 20px 1fr 75px 40px auto;
             align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
+            gap: 12px;
         }
-
-        .rank-number {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-
-        .rank-1 .rank-number { color: #B38E1B; }
-        .rank-2 .rank-number { color: #7D7D7D; }
-        .rank-3 .rank-number { color: #A67C52; }
 
         .user-name-wrapper {
             display: flex;
             align-items: center;
             gap: 6px;
-            min-width: 0; /* Позволяет тексту корректно сжиматься и использовать многоточие */
+            min-width: 0;
         }
 
         .user-name {
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            flex-shrink: 1;
-            min-width: 0;
         }
 
-        /* Стиль иконки ударного режима */
         .streak-badge {
             display: inline-flex;
             align-items: center;
-            gap: 3px;
+            gap: 2px;
             color: var(--active-day);
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 12px;
+            font-weight: 800;
             flex-shrink: 0;
-            line-height: 1;
+            background: rgba(217, 119, 87, 0.1);
+            padding: 1px 4px;
+            border-radius: 4px;
         }
 
-        .streak-badge svg {
-            animation: flameFlicker 2s ease-in-out infinite alternate;
+        .flame-icon {
+            animation: flameFlicker 1s ease-in-out infinite alternate;
             transform-origin: bottom center;
         }
 
         @keyframes flameFlicker {
-            0% { transform: scale(1) rotate(0deg); opacity: 0.95; }
-            100% { transform: scale(1.08) rotate(-3deg); opacity: 1; }
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.2); opacity: 1; }
         }
 
-        .rings-container {
-            display: flex;
-            gap: 3px;
-        }
-
+        .rings-container { display: flex; gap: 3px; justify-content: flex-end; }
         .day-ring {
             width: 7px;
             height: 7px;
             border-radius: 1.5px;
             background-color: var(--accent-soft);
         }
+        .day-ring.active { background-color: var(--active-day); }
 
-        .day-ring.active { 
-            background-color: var(--active-day); 
-            box-shadow: 0 1px 2px rgba(217, 119, 87, 0.2); 
-        }
+        .score-box { text-align: right; min-width: 35px; }
+        .score-value { font-size: 13px; font-weight: 700; color: var(--accent); }
 
-        .progress-mini {
-            height: 2px;
-            background: var(--accent-soft);
-            border-radius: 1px;
-            width: 100%;
-            overflow: hidden;
-        }
+        .compact-container { max-width: 500px; margin: 0 auto; }
 
-        .progress-fill {
-            height: 100%;
-            background: var(--accent);
-            width: 0;
-            transition: width 1s ease-out;
-        }
-
-        .score-box { text-align: right; }
-        .score-value { font-size: 13px; font-weight: 700; }
-        .score-total { font-size: 10px; color: var(--text-muted); opacity: 0.6; }
-
-        .compact-container { max-width: 520px; margin: 0 auto; }
-
-        /* Усовершенствованный интерактивный футер-легенда */
         .table-footnote {
             margin-top: 20px;
-            padding-top: 12px;
+            padding: 12px 4px;
             border-top: 1px dashed var(--border);
             display: flex;
             justify-content: space-between;
-            align-items: center;
             font-size: 10px;
             color: var(--text-muted);
-            gap: 12px;
-        }
-
-        .footnote-legend {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
-
-        .legend-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 2px;
-            display: inline-block;
-        }
-
-        .footnote-days-badge {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            background-color: rgba(229, 224, 216, 0.3);
-            padding: 3px 6px;
-            border-radius: 6px;
-            border: 1px solid rgba(229, 224, 216, 0.6);
-        }
-
-        .footnote-days-label {
-            font-size: 9px;
-            text-transform: uppercase;
-            font-weight: 500;
-            color: var(--text-muted);
-            margin-right: 4px;
-            opacity: 0.8;
         }
 
         .day-letter-box {
-            width: 14px;
-            height: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 8px;
-            font-weight: 700;
-            border-radius: 3px;
-            background-color: var(--bg-main);
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-        }
-        
-        @media (max-width: 440px) {
-            .leaderboard-card { 
-                grid-template-columns: 15px 150px 70px 1fr auto; 
-                gap: 6px;
-            }
-            .user-name {
-                font-size: 12px;
-            }
-            .section-header { 
-                align-items: center;
-            }
-            .table-footnote {
-                flex-direction: column;
-                gap: 12px;
-                align-items: center;
-                text-align: center;
-            }
-            .footnote-legend {
-                justify-content: center;
-                width: 100%;
-            }
-            .footnote-days-badge {
-                justify-content: center;
-                width: 100%;
-            }
+            width: 14px; height: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 8px; font-weight: 700; border-radius: 3px;
+            background-color: var(--accent-soft);
         }
     </style>
 </head>
 <body class="py-5 px-3">
 
     <div class="compact-container">
-        <!-- Оригинальная верхняя панель с линией разделения -->
         <div class="section-header">
             <span class="section-title">
                 <i class="fa-solid fa-bolt"></i>
-                <span>Трекер</span><strong>Активности</strong>
+                <span>Лидеры</span> <strong>Fitness Quarter</strong>
             </span>
-            <div class="info-group">
+            <div class="info-group flex items-center gap-3">
                 <span id="status" class="status-text anim-pulse">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i> Обновление
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Загрузка
                 </span>
-                <div id="today-date" class="date-badge">
-                    <!-- Диапазон дат вставится сюда -->
-                </div>
             </div>
         </div>
 
-        <div id="tracks-container" class="space-y-1">
-            <!-- Данные подгрузятся сюда -->
+        <div id="tracks-container" class="space-y-2">
+            <!-- Сюда попадут данные -->
         </div>
 
-        <!-- Усовершенствованная легенда -->
         <div class="table-footnote">
-            <div class="footnote-legend">
-                <span class="legend-item">
-                    <span class="legend-dot" style="background-color: var(--active-day); box-shadow: 0 1px 2px rgba(217, 119, 87, 0.2);"></span> Тренировка
-                </span>
-                <span class="legend-item">
-                    <span class="legend-dot" style="background-color: var(--accent-soft); border: 1px solid rgba(0,0,0,0.05);"></span> Отдых
-                </span>
+            <div class="flex gap-3">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[var(--active-day)]"></span> Активен</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[var(--accent-soft)]"></span> Отдых</span>
             </div>
-            
-            <div class="footnote-days-badge">
-                <span class="footnote-days-label">Дни недели:</span>
-                <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">П</div>
-                <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">В</div>
-                <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">С</div>
-                <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">Ч</div>
-                <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">П</div>
-                <div class="day-letter-box" style="background-color: var(--accent-soft); opacity: 0.9;">С</div>
-                <div class="day-letter-box" style="background-color: var(--accent-soft); opacity: 0.9;">В</div>
+            <div class="flex gap-1">
+                <div class="day-letter-box" style="background:var(--active-day); color:white">П</div>
+                <div class="day-letter-box" style="background:var(--active-day); color:white">В</div>
+                <div class="day-letter-box" style="background:var(--active-day); color:white">С</div>
+                <div class="day-letter-box" style="background:var(--active-day); color:white">Ч</div>
+                <div class="day-letter-box" style="background:var(--active-day); color:white">П</div>
+                <div class="day-letter-box">С</div>
+                <div class="day-letter-box">В</div>
             </div>
         </div>
     </div>
 
     <script>
-        // Актуальный URL деплоя Google Apps Script
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzPOszPmAKzvS51vSUAGombHUEW8ucgaB5kXp-YIerboC2EGMJcMJITP7LKO7Stb9D/exec"; 
 
-        function setWeeklyRange() {
-            const dateEl = document.getElementById('today-date');
-            const now = new Date();
-            // Настройка московского времени (UTC+3)
-            const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000) + (now.getTimezoneOffset() * 60000));
-            
-            // Находим "Вчера" (конечная дата нашего 7-дневного окна)
-            const endDate = new Date(moscowTime);
-            endDate.setDate(moscowTime.getDate() - 1);
-            
-            // Находим стартовую дату (6 дней назад от вчера — суммарно 7 дней)
-            const startDate = new Date(endDate);
-            startDate.setDate(endDate.getDate() - 6);
-            
-            const monthNames = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
-            
-            const startDay = startDate.getDate();
-            const startMonth = monthNames[startDate.getMonth()];
-            const endDay = endDate.getDate();
-            const endMonth = monthNames[endDate.getMonth()];
-            
-            const dateString = startMonth === endMonth 
-                ? `${startDay} - ${endDay} ${startMonth}`
-                : `${startDay} ${startMonth} - ${endDay} ${endMonth}`;
-                
-            dateEl.innerHTML = `<i class="fa-regular fa-calendar"></i> ${dateString}`;
-        }
+        // ТЕСТОВЫЕ ДАННЫЕ ДЛЯ ПРЕДПРОСМОТРА (на случай если Fetch блокируется)
+        const DEMO_DATA = [
+            { name: "Александр В.", streak: 5, data: [1, 1, 1, 1, 1, 0, 0] },
+            { name: "Мария С.", streak: 12, data: [1, 1, 0, 1, 1, 1, 0] },
+            { name: "Дмитрий К.", streak: 0, data: [1, 0, 1, 0, 1, 0, 0] },
+            { name: "Елена П.", streak: 3, data: [0, 1, 1, 1, 0, 0, 0] }
+        ];
 
         async function fetchData() {
             const statusEl = document.getElementById('status');
-            setWeeklyRange();
-
-            // ВАЖНО: Сначала показываем демо-данные с огоньками, чтобы вы убедились, что код отрисовки работает!
-            renderDemo();
-
             try {
-                const response = await fetch(SCRIPT_URL);
-                if (!response.ok) throw new Error("Network error");
+                // Ставим таймаут на запрос, чтобы не ждать вечно в предпросмотре
+                const controller = new AbortController();
+                const id = setTimeout(() => controller.abort(), 3000);
+
+                const response = await fetch(SCRIPT_URL, { signal: controller.signal });
+                clearTimeout(id);
                 
                 const data = await response.json();
-                
-                if (data.error) {
-                    statusEl.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Ошибка API';
-                    return;
-                }
-
-                // ВНИМАНИЕ: Если после успешной загрузки огоньки исчезают, 
-                // значит Google Таблица присылает пустое значение streak для всех участников!
                 render(data);
-                statusEl.innerHTML = '<i class="fa-solid fa-check"></i> Обновлено';
-                statusEl.classList.remove('anim-pulse');
-                statusEl.style.color = "var(--status-ok)"; 
-            } catch (error) {
-                console.error("Ошибка загрузки:", error);
-                statusEl.innerHTML = '<i class="fa-solid fa-plug-circle-xmark"></i> Офлайн';
-                statusEl.classList.remove('anim-pulse');
+                
+                statusEl.innerHTML = '<i class="fa-solid fa-check"></i> Live';
+                statusEl.style.color = "var(--status-ok)";
+            } catch (e) {
+                console.warn("Используются демо-данные (запрос заблокирован или таймаут)");
+                render(DEMO_DATA);
+                statusEl.innerHTML = '<i class="fa-solid fa-eye"></i> Demo Mode';
+                statusEl.style.color = "var(--text-muted)";
             }
+            statusEl.classList.remove('anim-pulse');
         }
 
         function render(participants) {
             const container = document.getElementById('tracks-container');
-            if (!participants || !Array.isArray(participants) || participants.length === 0) {
-                container.innerHTML = '<div class="text-center py-10 text-gray-400 text-sm">Данные не найдены</div>';
-                return;
-            }
+            
+            const processed = participants.map(p => {
+                const s = Number(p.streak || p.Streak || 0);
+                const activeDays = Array.isArray(p.data) ? p.data.reduce((a, b) => a + b, 0) : 0;
+                return { ...p, streak: s, total: activeDays };
+            }).sort((a, b) => b.total - a.total || b.streak - a.streak);
 
-            const sorted = participants
-                .map(p => {
-                    // Устойчивый парсинг переменной streak
-                    let rawStreak = 0;
-                    if (p.streak !== undefined && p.streak !== null) {
-                        rawStreak = parseInt(p.streak, 10);
-                    } else if (p.Streak !== undefined && p.Streak !== null) {
-                        rawStreak = parseInt(p.Streak, 10);
-                    }
-                    if (isNaN(rawStreak)) {
-                        rawStreak = 0;
-                    }
-
-                    return {
-                        ...p,
-                        safeData: Array.isArray(p.data) ? p.data : [0,0,0,0,0,0,0],
-                        total: Array.isArray(p.data) ? p.data.reduce((a, b) => a + b, 0) : 0,
-                        streak: rawStreak
-                    };
-                })
-                .sort((a, b) => b.total - a.total);
-
-            container.innerHTML = sorted.map((p, i) => {
-                const rank = i + 1;
-                const progressWidth = (p.total / 7) * 100;
-                const rings = p.safeData.map(a => `<div class="day-ring ${a ? 'active' : ''}"></div>`).join('');
+            container.innerHTML = processed.map((p, i) => {
+                const rings = (p.data || [0,0,0,0,0,0,0]).map(a => `<div class="day-ring ${a ? 'active' : ''}"></div>`).join('');
                 
-                // Рендерим точный кастомный SVG-огонёк, если количество недель ударного режима СТРОГО больше 0
-                const streakHtml = p.streak > 0 
-                    ? `<span class="streak-badge" title="Ударный режим: ${p.streak} нед.">
-                        <svg class="flame-icon" width="11" height="14" viewBox="0 0 11 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 1px;">
-                            <path d="M5.5 0C5.5 0 9 3.5 9 7C9 10 7 12.2 5 12.2C3 12.2 2.6 9.6 2.6 9.6C2.6 9.6 0.5 11 0.5 12.8C0.5 14 3 14 5 14C8.2 14 10.2 11 10.2 7.8C10.2 3.8 5.5 0 5.5 0Z" fill="#D97757"/>
-                            <path d="M5.1 5.2C5.1 5.2 7.1 7.2 7.1 9.2C7.1 11.2 5.8 12 4.6 12C3.4 12 3.1 10.2 3.1 10.2C3.1 10.2 1.6 11.2 1.6 12.8C1.6 13.8 3.1 14.2 4.6 14.2C6.6 14.2 8.1 12.5 8.1 10.5C8.1 8 5.1 5.2 5.1 5.2Z" fill="#FFF" opacity="0.4"/>
-                        </svg>
+                // Огонек
+                const streakHtml = (p.streak > 0) 
+                    ? `<span class="streak-badge">
+                        <i class="fa-solid fa-fire-flame-curved flame-icon"></i>
                         ${p.streak}
                        </span>` 
                     : '';
-                
+
                 return `
-                    <div class="leaderboard-card rank-${rank}">
-                        <div class="rank-number">${rank}</div>
+                    <div class="leaderboard-card">
+                        <div class="text-[10px] font-bold opacity-30">${i + 1}</div>
                         <div class="user-name-wrapper">
                             <div class="user-name">${p.name}</div>
                             ${streakHtml}
                         </div>
                         <div class="rings-container">${rings}</div>
-                        <div class="progress-mini">
-                            <div class="progress-fill" style="width: ${progressWidth}%"></div>
-                        </div>
                         <div class="score-box">
-                            <span class="score-value">${p.total}</span><span class="score-total">/7</span>
+                            <span class="score-value">${p.total}</span><span class="text-[9px] opacity-40 ml-0.5">/7</span>
+                        </div>
+                        <div class="text-[14px] text-[var(--accent)] opacity-40">
+                            <i class="fa-solid fa-chevron-right"></i>
                         </div>
                     </div>
                 `;
             }).join('');
-        }
-
-        function renderDemo() {
-            // Тестовые данные с реалистичным распределением ударных режимов для наглядности превью
-            const demoData = [
-                { name: "Соломин Денис", data: [1, 1, 1, 1, 1, 0, 0], streak: 1 },
-                { name: "Мурадян Акоп", data: [1, 1, 1, 1, 1, 1, 0], streak: 5 },
-                { name: "Халитов Михаил", data: [1, 1, 1, 0, 1, 0, 0], streak: 2 },
-                { name: "Толстоноженко Александр", data: [1, 0, 1, 1, 0, 0, 0], streak: 0 }, // 0 - огонек скрыт
-                { name: "Ожидание данных...", data: [0, 0, 0, 0, 0, 0, 0], streak: 0 } // 0 - огонек скрыт
-            ];
-            render(demoData);
         }
 
         window.onload = fetchData;
