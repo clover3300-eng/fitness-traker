@@ -363,14 +363,29 @@
 
         function setWeeklyRange() {
             const dateEl = document.getElementById('today-date');
+            
+            // Настройка московского времени (UTC+3)
             const now = new Date();
             const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000) + (now.getTimezoneOffset() * 60000));
             
-            const endDate = new Date(moscowTime);
-            endDate.setDate(moscowTime.getDate() - 1);
+            const currentDayOfWeek = moscowTime.getDay(); // 0 - Вс, 1 - Пн, 2 - Вт и т.д.
+            const currentHours = moscowTime.getHours();
             
-            const startDate = new Date(endDate);
-            startDate.setDate(endDate.getDate() - 6);
+            let startDate = new Date(moscowTime);
+            let endDate = new Date(moscowTime);
+            
+            // Проверяем: сейчас ПОНЕДЕЛЬНИК до 15:00 по Москве?
+            if (currentDayOfWeek === 1 && currentHours < 15) {
+                // Если да, замораживаем прошлую календарную неделю (с Пн по Вс)
+                // Конечной датой выставляем прошлое Воскресенье (вчерашний день)
+                endDate.setDate(moscowTime.getDate() - 1);
+                // Стартовой датой выставляем прошлый Понедельник (7 дней назад от сегодня)
+                startDate.setDate(moscowTime.getDate() - 7);
+            } else {
+                // Во все остальные дни и часы идет стандартное скользящее окно (последние 7 дней по сегодня включительно)
+                endDate = moscowTime;
+                startDate.setDate(endDate.getDate() - 6);
+            }
             
             const monthNames = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
             
@@ -414,7 +429,7 @@
             } catch (error) {
                 console.error("Ошибка при получении данных:", error);
                 debugJsonEl.textContent = "Error loading from script: " + error.toString();
-                statusEl.innerHTML = '<i class="fa-solid fa-plug-circle-xmark"></i> Офлайн';
+                statusEl.innerHTML = '<i class="fa-regular fa-calendar-xmark"></i> Офлайн';
                 renderDemo();
             }
         }
