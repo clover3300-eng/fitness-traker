@@ -6,18 +6,20 @@
     <title>Fitness Quarter - Live Leaderboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
         :root {
-            /* Палитра Anthropic / Claude с измененными акцентами */
             --bg-main: #F9F6F1; 
             --card-bg: #ffffff; 
             --text-main: #1D1D1D;
             --text-muted: #666362;
-            --accent: #708A74; /* Элегантный шалфейно-зеленый для линии прогресса */
+            --accent: #708A74; 
             --accent-soft: #E8E2D9;
             --border: #E5E0D8;
-            --active-day: #D97757; /* Яркий терракотовый для выполненных дней и огонька */
-            --status-ok: #16A34A; /* Зеленый для успешного обновления */
+            --active-day: #D97757; 
+            --status-ok: #16A34A;
+            --streak-fire: #E87B4A; 
+            --streak-inactive: #C4C2BC;
         }
 
         body {
@@ -29,15 +31,14 @@
 
         .section-header {
             margin-bottom: 20px;
-            padding: 0 4px 12px 4px; /* Добавлен отступ снизу */
-            border-bottom: 1px dashed var(--border); /* Линия разделения, как в легенде */
+            padding: 0 4px 12px 4px;
+            border-bottom: 1px dashed var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 10px;
         }
 
-        /* Дизайн главного заголовка в стиле Anthropic */
         .section-title {
             font-size: 15px;
             letter-spacing: -0.01em;
@@ -54,15 +55,8 @@
             opacity: 0.9;
         }
 
-        .section-title span {
-            font-weight: 400;
-            color: var(--text-muted);
-        }
-
-        .section-title strong {
-            font-weight: 700;
-            color: var(--text-main);
-        }
+        .section-title span { font-weight: 400; color: var(--text-muted); }
+        .section-title strong { font-weight: 700; color: var(--text-main); }
 
         .info-group {
             display: flex;
@@ -75,7 +69,7 @@
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.04em;
-            color: var(--active-day); /* Используем терракотовый для статуса обновления */
+            color: var(--active-day);
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -93,7 +87,6 @@
             background: var(--accent-soft);
             border-radius: 100px;
             white-space: nowrap;
-            letter-spacing: -0.01em;
         }
 
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -103,12 +96,12 @@
             background-color: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 6px 12px;
+            padding: 8px 12px;
             display: grid;
-            /* Сетка: Ранг | Имя | Квадраты | Линия | Счет */
-            grid-template-columns: 20px 190px 75px 1fr auto;
+            /* Сетка с гибкой шириной под имя участника (minmax) */
+            grid-template-columns: 20px minmax(110px, 1.5fr) 75px 1fr auto;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             transition: all 0.2s ease;
         }
 
@@ -116,6 +109,7 @@
             font-size: 11px;
             font-weight: 600;
             color: var(--text-muted);
+            flex-shrink: 0;
         }
 
         .rank-1 .rank-number { color: #B38E1B; }
@@ -125,44 +119,49 @@
         .user-name-wrapper {
             display: flex;
             align-items: center;
-            gap: 6px;
-            min-width: 0; /* Позволяет тексту корректно сжиматься и использовать многоточие */
+            gap: 4px;
+            min-width: 0;
+            flex-wrap: wrap; /* Позволяет огоньку красиво переноситься при нехватке места */
         }
 
         .user-name {
             font-size: 13px;
             font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex-shrink: 1;
-            min-width: 0;
+            line-height: 1.25;
+            /* Разрешаем перенос длинных имен и фамилий */
+            white-space: normal;
+            word-break: keep-all; 
+            overflow: visible;
         }
 
-        /* Стиль иконки ударного режима */
         .streak-badge {
             display: inline-flex;
             align-items: center;
-            gap: 2.5px;
-            color: var(--active-day);
-            font-size: 13px;
-            font-weight: 700;
+            gap: 2px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--streak-fire);
+            vertical-align: middle;
+            margin-left: 2px;
+            white-space: nowrap;
+            cursor: pointer;
             flex-shrink: 0;
-            line-height: 1;
         }
 
         .streak-badge svg {
-            animation: flameFlicker 2s ease-in-out infinite alternate;
+            flex-shrink: 0;
         }
 
-        @keyframes flameFlicker {
-            0% { transform: scale(1) rotate(0deg); opacity: 0.95; }
-            100% { transform: scale(1.06) rotate(-2deg); opacity: 1; }
+        .streak-badge.inactive {
+            color: var(--streak-inactive);
+            filter: grayscale(1);
+            opacity: .55;
         }
 
         .rings-container {
             display: flex;
             gap: 3px;
+            flex-shrink: 0;
         }
 
         .day-ring {
@@ -192,13 +191,16 @@
             transition: width 1s ease-out;
         }
 
-        .score-box { text-align: right; }
+        .score-box { 
+            text-align: right; 
+            flex-shrink: 0;
+        }
+        
         .score-value { font-size: 13px; font-weight: 700; }
         .score-total { font-size: 10px; color: var(--text-muted); opacity: 0.6; }
 
         .compact-container { max-width: 520px; margin: 0 auto; }
 
-        /* Усовершенствованный интерактивный футер-легенда */
         .table-footnote {
             margin-top: 20px;
             padding-top: 12px;
@@ -222,7 +224,6 @@
             align-items: center;
             gap: 5px;
             font-weight: 500;
-            color: var(--text-muted);
         }
 
         .legend-dot {
@@ -267,36 +268,25 @@
         
         @media (max-width: 440px) {
             .leaderboard-card { 
-                grid-template-columns: 15px 150px 70px 1fr auto; 
-                gap: 6px;
+                /* Скрываем колонку прогресс-бара (1fr) на мобильных для высвобождения места */
+                grid-template-columns: 18px minmax(0, 1fr) 70px auto; 
+                gap: 8px;
+                padding: 8px 10px;
             }
-            .user-name {
-                font-size: 12px;
+            /* Полностью убираем саму полосу прогресса из сетки */
+            .progress-mini {
+                display: none;
             }
-            .section-header { 
-                align-items: center;
+            .user-name { 
+                font-size: 12px; 
             }
-            .table-footnote {
-                flex-direction: column;
-                gap: 12px;
-                align-items: center;
-                text-align: center;
-            }
-            .footnote-legend {
-                justify-content: center;
-                width: 100%;
-            }
-            .footnote-days-badge {
-                justify-content: center;
-                width: 100%;
-            }
+            .table-footnote { flex-direction: column; gap: 12px; }
         }
     </style>
 </head>
 <body class="py-5 px-3">
 
     <div class="compact-container">
-        <!-- Оригинальная верхняя панель с линией разделения -->
         <div class="section-header">
             <span class="section-title">
                 <i class="fa-solid fa-bolt"></i>
@@ -306,24 +296,21 @@
                 <span id="status" class="status-text anim-pulse">
                     <i class="fa-solid fa-circle-notch fa-spin"></i> Обновление
                 </span>
-                <div id="today-date" class="date-badge">
-                    <!-- Диапазон дат вставится сюда -->
-                </div>
+                <div id="today-date" class="date-badge"></div>
             </div>
         </div>
 
         <div id="tracks-container" class="space-y-1">
-            <!-- Данные подгрузятся сюда -->
+            <!-- Данные подгрузятся динамически -->
         </div>
 
-        <!-- Усовершенствованная легенда -->
         <div class="table-footnote">
             <div class="footnote-legend">
                 <span class="legend-item">
-                    <span class="legend-dot" style="background-color: var(--active-day); box-shadow: 0 1px 2px rgba(217, 119, 87, 0.2);"></span> Тренировка
+                    <span class="legend-dot" style="background-color: var(--active-day);"></span> Тренировка
                 </span>
                 <span class="legend-item">
-                    <span class="legend-dot" style="background-color: var(--accent-soft); border: 1px solid rgba(0,0,0,0.05);"></span> Отдых
+                    <span class="legend-dot" style="background-color: var(--accent-soft);"></span> Отдых
                 </span>
             </div>
             
@@ -341,59 +328,36 @@
     </div>
 
     <script>
-        // Актуальный URL деплоя Google Apps Script
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzPOszPmAKzvS51vSUAGombHUEW8ucgaB5kXp-YIerboC2EGMJcMJITP7LKO7Stb9D/exec"; 
 
         function setWeeklyRange() {
             const dateEl = document.getElementById('today-date');
             const now = new Date();
-            // Настройка московского времени (UTC+3)
             const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000) + (now.getTimezoneOffset() * 60000));
-            
-            // Находим "Вчера" (конечная дата нашего 7-дневного окна)
             const endDate = new Date(moscowTime);
             endDate.setDate(moscowTime.getDate() - 1);
-            
-            // Находим стартовую дату (6 дней назад от вчера — суммарно 7 дней)
             const startDate = new Date(endDate);
             startDate.setDate(endDate.getDate() - 6);
-            
             const monthNames = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
-            
-            const startDay = startDate.getDate();
-            const startMonth = monthNames[startDate.getMonth()];
-            const endDay = endDate.getDate();
-            const endMonth = monthNames[endDate.getMonth()];
-            
-            const dateString = startMonth === endMonth 
-                ? `${startDay} - ${endDay} ${startMonth}`
-                : `${startDay} ${startMonth} - ${endDay} ${endMonth}`;
-                
+            const dateString = startDate.getMonth() === endDate.getMonth() 
+                ? `${startDate.getDate()} - ${endDate.getDate()} ${monthNames[endDate.getMonth()]}`
+                : `${startDate.getDate()} ${monthNames[startDate.getMonth()]} - ${endDate.getDate()} ${monthNames[endDate.getMonth()]}`;
             dateEl.innerHTML = `<i class="fa-regular fa-calendar"></i> ${dateString}`;
         }
 
         async function fetchData() {
             const statusEl = document.getElementById('status');
             setWeeklyRange();
-
             try {
                 const response = await fetch(SCRIPT_URL);
                 if (!response.ok) throw new Error("Network error");
-                
                 const data = await response.json();
-                
-                if (data.error) {
-                    statusEl.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Ошибка API';
-                    renderDemo();
-                    return;
-                }
-
+                if (data.error) { renderDemo(); return; }
                 render(data);
                 statusEl.innerHTML = '<i class="fa-solid fa-check"></i> Обновлено';
                 statusEl.classList.remove('anim-pulse');
                 statusEl.style.color = "var(--status-ok)"; 
             } catch (error) {
-                console.error("Ошибка загрузки:", error);
                 statusEl.innerHTML = '<i class="fa-solid fa-plug-circle-xmark"></i> Офлайн';
                 renderDemo();
             }
@@ -401,29 +365,19 @@
 
         function render(participants) {
             const container = document.getElementById('tracks-container');
-            if (!participants || !Array.isArray(participants) || participants.length === 0) {
+            if (!participants || participants.length === 0) {
                 container.innerHTML = '<div class="text-center py-10 text-gray-400 text-sm">Данные не найдены</div>';
                 return;
             }
 
             const sorted = participants
                 .map(p => {
-                    // Максимально устойчивый парсинг переменной streak (поддерживает string, number, undefined, null)
-                    let rawStreak = 0;
-                    if (p.streak !== undefined && p.streak !== null) {
-                        rawStreak = parseInt(p.streak, 10);
-                    } else if (p.Streak !== undefined && p.Streak !== null) {
-                        rawStreak = parseInt(p.Streak, 10);
-                    }
-                    if (isNaN(rawStreak)) {
-                        rawStreak = 0;
-                    }
-
+                    let s = parseInt(p.streak || p.Streak || 0, 10);
                     return {
                         ...p,
                         safeData: Array.isArray(p.data) ? p.data : [0,0,0,0,0,0,0],
                         total: Array.isArray(p.data) ? p.data.reduce((a, b) => a + b, 0) : 0,
-                        streak: rawStreak
+                        streak: isNaN(s) ? 0 : s
                     };
                 })
                 .sort((a, b) => b.total - a.total);
@@ -433,22 +387,21 @@
                 const progressWidth = (p.total / 7) * 100;
                 const rings = p.safeData.map(a => `<div class="day-ring ${a ? 'active' : ''}"></div>`).join('');
                 
-                // Рендерим точный кастомный SVG-огонёк, если количество недель ударного режима СТРОГО больше 0
-                const streakHtml = p.streak > 0 
-                    ? `<span class="streak-badge" title="Ударный режим: ${p.streak} нед.">
-                        <svg class="flame-icon" width="11" height="14" viewBox="0 0 11 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
-                            <path d="M5.5 0C5.5 0 9 3.5 9 7C9 10 7 12.2 5 12.2C3 12.2 2.6 9.6 2.6 9.6C2.6 9.6 0.5 11 0.5 12.8C0.5 14 3 14 5 14C8.2 14 10.2 11 10.2 7.8C10.2 3.8 5.5 0 5.5 0Z" fill="#D97757"/>
-                            <path d="M5.1 5.2C5.1 5.2 7.1 7.2 7.1 9.2C7.1 11.2 5.8 12 4.6 12C3.4 12 3.1 10.2 3.1 10.2C3.1 10.2 1.6 11.2 1.6 12.8C1.6 13.8 3.1 14.2 4.6 14.2C6.6 14.2 8.1 12.5 8.1 10.5C8.1 8 5.1 5.2 5.1 5.2Z" fill="#FFF" opacity="0.4"/>
+                const isInactive = p.streak === 0;
+                
+                const streakHtml = `
+                    <span class="streak-badge ${isInactive ? 'inactive' : ''}" title="Ударный режим: ${p.streak} нед.">
+                        <svg width="12" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2c1.4 2.5 3 4.5 4.5 7 2.1 3.5 1.5 8-1.5 10.5a7 7 0 0 1-9 0c-3-2.5-3.6-7-1.5-10.5 1.5-2.5 3.1-4.5 4.5-7z"></path>
                         </svg>
-                        ${p.streak}
-                       </span>` 
-                    : '';
+                        <span>${p.streak}</span>
+                    </span>`;
                 
                 return `
                     <div class="leaderboard-card rank-${rank}">
                         <div class="rank-number">${rank}</div>
                         <div class="user-name-wrapper">
-                            <div class="user-name">${p.name}</div>
+                            <div class="user-name" title="${p.name}">${p.name}</div>
                             ${streakHtml}
                         </div>
                         <div class="rings-container">${rings}</div>
@@ -464,13 +417,12 @@
         }
 
         function renderDemo() {
-            // Тестовые данные с реалистичным распределением ударных режимов для наглядности превью
             const demoData = [
                 { name: "Соломин Денис", data: [1, 1, 1, 1, 1, 0, 0], streak: 1 },
                 { name: "Мурадян Акоп", data: [1, 1, 1, 1, 1, 1, 0], streak: 5 },
                 { name: "Халитов Михаил", data: [1, 1, 1, 0, 1, 0, 0], streak: 2 },
-                { name: "Толстоноженко Александр", data: [1, 0, 1, 1, 0, 0, 0], streak: 0 }, // 0 - огонек скроется
-                { name: "Ожидание данных...", data: [0, 0, 0, 0, 0, 0, 0], streak: 0 } // 0 - огонек скроется
+                { name: "Толстоноженко Александр", data: [1, 0, 1, 1, 0, 0, 0], streak: 0 },
+                { name: "Новый Участник С Очень Длинным Именем", data: [1, 0, 0, 0, 0, 0, 0], streak: 0 }
             ];
             render(demoData);
         }
