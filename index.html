@@ -8,13 +8,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
+            /* Палитра Anthropic / Claude с измененными акцентами */
             --bg-main: #F9F6F1; 
             --card-bg: #ffffff; 
             --text-main: #1D1D1D;
             --text-muted: #666362;
-            --accent: #D97757; 
+            --accent: #708A74; /* Элегантный шалфейно-зеленый для линии прогресса */
             --accent-soft: #E8E2D9;
             --border: #E5E0D8;
+            --active-day: #D97757; /* Яркий терракотовый для выполненных дней (огоньки активности) */
+            --status-ok: #16A34A; /* Зеленый для успешного обновления */
         }
 
         body {
@@ -25,10 +28,7 @@
         }
 
         .section-header {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             padding: 0 4px;
             display: flex;
             justify-content: space-between;
@@ -36,8 +36,31 @@
             gap: 10px;
         }
 
+        /* Дизайн главного заголовка в стиле Anthropic */
         .section-title {
+            font-size: 15px;
+            letter-spacing: -0.01em;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
             white-space: nowrap;
+        }
+
+        .section-title i {
+            font-size: 12px;
+            color: var(--active-day);
+            opacity: 0.9;
+        }
+
+        .section-title span {
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .section-title strong {
+            font-weight: 700;
+            color: var(--text-main);
         }
 
         .info-group {
@@ -50,8 +73,8 @@
         .status-text {
             font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.02em;
-            color: var(--accent);
+            letter-spacing: 0.04em;
+            color: var(--active-day); /* Используем терракотовый для статуса обновления */
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -65,10 +88,11 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            padding: 2px 8px;
+            padding: 2.5px 8px;
             background: var(--accent-soft);
             border-radius: 100px;
             white-space: nowrap;
+            letter-spacing: -0.01em;
         }
 
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -80,7 +104,8 @@
             border-radius: 8px;
             padding: 6px 12px;
             display: grid;
-            grid-template-columns: 20px 130px 75px 1fr auto;
+            /* Сетка: Ранг (фиксир) | Имя (фиксир) | Квадраты (фиксир) | Линия (гибкая) | Счет (авто) */
+            grid-template-columns: 20px 190px 75px 1fr auto;
             align-items: center;
             gap: 8px;
             transition: all 0.2s ease;
@@ -116,7 +141,10 @@
             background-color: var(--accent-soft);
         }
 
-        .day-ring.active { background-color: var(--accent); }
+        .day-ring.active { 
+            background-color: var(--active-day); 
+            box-shadow: 0 1px 2px rgba(217, 119, 87, 0.2); /* Легкое терракотовое свечение */
+        }
 
         .progress-mini {
             height: 2px;
@@ -138,10 +166,65 @@
         .score-total { font-size: 10px; color: var(--text-muted); opacity: 0.6; }
 
         .compact-container { max-width: 520px; margin: 0 auto; }
+
+        /* Стильный компактный футер-сноска */
+        .table-footnote {
+            margin-top: 16px;
+            padding: 10px 4px 0 4px;
+            border-top: 1px dashed var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .footnote-days {
+            display: flex;
+            gap: 5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.02em;
+        }
+
+        .footnote-legend {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .legend-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 1px;
+        }
         
-        @media (max-width: 420px) {
-            .leaderboard-card { grid-template-columns: 15px 110px 70px 1fr auto; }
-            .section-header { font-size: 11px; }
+        @media (max-width: 440px) {
+            .leaderboard-card { 
+                /* На мобильных выделяем 150px под имя, чтобы всё аккуратно помещалось на узком экране */
+                grid-template-columns: 15px 150px 70px 1fr auto; 
+                gap: 6px;
+            }
+            .user-name {
+                font-size: 12px; /* Слегка уменьшаем шрифт на смартфонах для гарантированного входа */
+            }
+            .section-header { 
+                align-items: center;
+            }
+            .section-title {
+                font-size: 13px;
+            }
+            .table-footnote {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -149,13 +232,16 @@
 
     <div class="compact-container">
         <div class="section-header">
-            <span class="section-title">Еженедельный мониторинг активности</span>
+            <span class="section-title">
+                <i class="fa-solid fa-bolt"></i>
+                <span>Трекер</span><strong>Активности</strong>
+            </span>
             <div class="info-group">
                 <span id="status" class="status-text anim-pulse">
                     <i class="fa-solid fa-circle-notch fa-spin"></i> Обновление
                 </span>
                 <div id="today-date" class="date-badge">
-                    <!-- Дата вставится сюда -->
+                    <!-- Диапазон дат вставится сюда -->
                 </div>
             </div>
         </div>
@@ -163,27 +249,58 @@
         <div id="tracks-container" class="space-y-1">
             <!-- Данные подгрузятся сюда -->
         </div>
+
+        <!-- Сноска с расшифровкой дней недели и цветов -->
+        <div class="table-footnote">
+            <div class="footnote-legend">
+                <span class="legend-item">
+                    <span class="legend-dot" style="background-color: var(--active-day);"></span> Тренировка
+                </span>
+                <span class="legend-item">
+                    <span class="legend-dot" style="background-color: var(--accent-soft);"></span> Отдых
+                </span>
+            </div>
+            <div class="footnote-days">
+                <span>ПН</span>•<span>ВТ</span>•<span>СР</span>•<span>ЧТ</span>•<span>ПТ</span>•<span>СБ</span>•<span>ВС</span>
+            </div>
+        </div>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzPOszPmAKzvS51vSUAGombHUEW8ucgaB5kXp-YIerboC2EGMJcMJITP7LKO7Stb9D/exec"; 
 
-        function setTodayDate() {
+        function setWeeklyRange() {
             const dateEl = document.getElementById('today-date');
             const now = new Date();
-            // Московское время
+            // Настройка московского времени (UTC+3)
             const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000) + (now.getTimezoneOffset() * 60000));
             
-            const day = moscowTime.getDate();
-            const monthNames = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
-            const month = monthNames[moscowTime.getMonth()];
+            // Находим "Вчера" (конечная дата нашего 7-дневного окна)
+            const endDate = new Date(moscowTime);
+            endDate.setDate(moscowTime.getDate() - 1);
             
-            dateEl.innerHTML = `<i class="fa-regular fa-calendar"></i> ${day} ${month}`;
+            // Находим стартовую дату (6 дней назад от вчера — суммарно 7 дней)
+            const startDate = new Date(endDate);
+            startDate.setDate(endDate.getDate() - 6);
+            
+            const monthNames = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+            
+            const startDay = startDate.getDate();
+            const startMonth = monthNames[startDate.getMonth()];
+            const endDay = endDate.getDate();
+            const endMonth = monthNames[endDate.getMonth()];
+            
+            // Форматируем вывод: "11 - 17 мая" или "29 апр - 5 мая" (если неделя переходящая)
+            const dateString = startMonth === endMonth 
+                ? `${startDay} - ${endDay} ${startMonth}`
+                : `${startDay} ${startMonth} - ${endDay} ${endMonth}`;
+                
+            dateEl.innerHTML = `<i class="fa-regular fa-calendar"></i> ${dateString}`;
         }
 
         async function fetchData() {
             const statusEl = document.getElementById('status');
-            setTodayDate();
+            setWeeklyRange();
 
             try {
                 const response = await fetch(SCRIPT_URL);
@@ -200,7 +317,7 @@
                 render(data);
                 statusEl.innerHTML = '<i class="fa-solid fa-check"></i> Обновлено';
                 statusEl.classList.remove('anim-pulse');
-                statusEl.style.color = "#16A34A"; 
+                statusEl.style.color = "var(--status-ok)"; 
             } catch (error) {
                 console.error("Ошибка загрузки:", error);
                 statusEl.innerHTML = '<i class="fa-solid fa-plug-circle-xmark"></i> Офлайн';
