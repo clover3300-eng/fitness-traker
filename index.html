@@ -29,9 +29,8 @@
         }
 
         .section-header {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             padding: 0 4px 0 4px;
-            /* Убрали верхнюю разделительную линию для чистоты дизайна */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -91,20 +90,90 @@
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .anim-pulse { animation: pulse 1.5s infinite; }
 
-        /* Идеально выровненная по сетке шапка таблицы */
+        /* Революционная интерактивная шапка-панель */
         .leaderboard-header {
             display: grid;
-            /* Выделили 180px под колонку прогресса для длинной и красивой линии */
             grid-template-columns: 20px 1fr 90px 180px;
             align-items: center;
             gap: 8px;
-            padding: 0 12px 10px 12px; /* Нижний внутренний отступ */
-            margin-bottom: 12px;
-            font-size: 11px; /* Чуть крупнее и мягче */
-            font-weight: 600;
-            color: var(--text-muted);
-            border-bottom: 1px solid rgba(229, 224, 216, 0.6); /* Нежный горизонтальный разделитель под шапкой */
+            padding: 10px 12px;
+            margin-bottom: 16px;
+            background: rgba(229, 224, 216, 0.25);
+            border: 1px solid rgba(229, 224, 216, 0.6);
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             user-select: none;
+        }
+
+        .header-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Единый красивый бадж статистики в фирменном зеленом цвете */
+        .header-stat-bubble {
+            background-color: var(--accent);
+            color: #ffffff;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 100px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 4px rgba(112, 138, 116, 0.15);
+        }
+
+        /* Интерактивный премиальный бадж цели недели */
+        .header-progress-bubble {
+            background-color: #3b3a36;
+            color: #ffffff;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 100px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 4px rgba(59, 58, 54, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        /* Интерактивные мини-буквы дней недели в шапке */
+        .header-days-container {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+            border-left: 1px solid rgba(29, 29, 29, 0.1);
+            padding-left: 12px;
+            margin-left: 4px;
+        }
+
+        .header-day-dot {
+            width: 7px;
+            height: 12px;
+            font-size: 7px;
+            font-weight: 800;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.5;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .header-day-dot:hover {
+            opacity: 1;
+            color: var(--active-day);
+            transform: translateY(-1px);
         }
 
         .leaderboard-card {
@@ -184,6 +253,17 @@
             padding-left: 12px; /* Отступ от линии до квадратиков */
             height: 14px; /* Фиксированная высота разделителя для стройности */
             align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        /* Подсветка конкретного дня при наведении на день в шапке */
+        .rings-container.highlight-day .day-ring {
+            opacity: 0.25;
+        }
+        .rings-container.highlight-day .day-ring.target-highlight {
+            opacity: 1;
+            transform: scale(1.2);
+            box-shadow: 0 0 4px var(--active-day);
         }
 
         .day-ring {
@@ -191,6 +271,7 @@
             height: 7px;
             border-radius: 1.5px;
             background-color: var(--accent-soft);
+            transition: all 0.15s ease;
         }
 
         .day-ring.active { 
@@ -208,6 +289,7 @@
             min-width: 0;
         }
 
+        /* Классический тонкий прогресс-бар */
         .progress-mini {
             height: 2px;
             background: var(--accent-soft);
@@ -216,6 +298,7 @@
             overflow: hidden;
         }
 
+        /* Фирменная шалфейная заливка */
         .progress-fill {
             height: 100%;
             background: var(--accent);
@@ -226,6 +309,9 @@
         .score-box { 
             text-align: right; 
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 3px;
         }
         .score-value { font-size: 13px; font-weight: 700; }
         .score-total { font-size: 10px; color: var(--text-muted); opacity: 0.6; }
@@ -351,17 +437,37 @@
             </div>
         </div>
 
-        <!-- Шапка таблицы с заголовками -->
+        <!-- Революционная панель-шапка таблицы -->
         <div class="leaderboard-header">
-            <div></div> <!-- Ранг (без текста) -->
-            <div class="flex items-center gap-1.5">
-                <i class="fa-regular fa-user text-[10px] text-gray-400"></i>
+            <div></div> <!-- Ранг -->
+            <div class="header-section-label">
+                <i class="fa-regular fa-user text-[11px] text-gray-500"></i>
                 <span>Участники</span>
+                
+                <!-- Контейнер для динамической объединенной статистики -->
+                <div class="ml-2">
+                    <span id="total-workouts-stat" class="header-stat-bubble" style="display: none;">
+                        <i class="fa-solid fa-calendar-week text-[9px]"></i>
+                        <span id="stat-combined-text">1 неделя</span>
+                    </span>
+                </div>
             </div>
-            <!-- Объединенный заголовок активности выровнен по левому краю строго над линией-разделителем -->
-            <div style="grid-column: 3 / 5; text-align: left;" class="pl-[12px] flex items-center gap-1.5">
-                <i class="fa-solid fa-chart-line text-[10px] text-gray-400"></i>
-                <span>Активность и прогресс</span>
+            <!-- Интерактивный календарь дней недели прямо в шапке -->
+            <div class="header-days-container">
+                <div class="header-day-dot" onmouseenter="highlightDayCol(0)" onmouseleave="clearHighlightDayCol()" title="Подсветить Понедельник">П</div>
+                <div class="header-day-dot" onmouseenter="highlightDayCol(1)" onmouseleave="clearHighlightDayCol()" title="Подсветить Вторник">В</div>
+                <div class="header-day-dot" onmouseenter="highlightDayCol(2)" onmouseleave="clearHighlightDayCol()" title="Подсветить Среду">С</div>
+                <div class="header-day-dot" onmouseenter="highlightDayCol(3)" onmouseleave="clearHighlightDayCol()" title="Подсветить Четверг">Ч</div>
+                <div class="header-day-dot" onmouseenter="highlightDayCol(4)" onmouseleave="clearHighlightDayCol()" title="Подсветить Пятницу">П</div>
+                <div class="header-day-dot" onmouseenter="highlightDayCol(5)" onmouseleave="clearHighlightDayCol()" title="Подсветить Субботу">С</div>
+                <div class="header-day-dot" onmouseenter="highlightDayCol(6)" onmouseleave="clearHighlightDayCol()" title="Подсветить Воскресенье">В</div>
+            </div>
+            <!-- Новый интерактивный заголовок прогресса с фиксированной целью недели -->
+            <div class="header-section-label justify-end">
+                <span class="header-progress-bubble" title="Спортивная цель на текущую неделю">
+                    <i class="fa-solid fa-trophy text-[8px] text-amber-400"></i>
+                    <span>Цель: 5/7</span>
+                </span>
             </div>
         </div>
 
@@ -413,8 +519,15 @@
     </div>
 
     <script>
-        // Актуальный URL деплоя Google Apps Script
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzPOszPmAKzvS51vSUAGombHUEW8ucgaB5kXp-YIerboC2EGMJcMJITP7LKO7Stb9D/exec"; 
+        // Глобальные настройки трекера
+        const CONFIG = {
+            // Дата официального начала фитнес-сезона (Понедельник, 11 мая 2026 года)
+            SEASON_START_DATE: "2026-05-11",
+            // Ссылка на деплой Google Apps Script
+            SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxzPOszPmAKzvS51vSUAGombHUEW8ucgaB5kXp-YIerboC2EGMJcMJITP7LKO7Stb9D/exec"
+        };
+
+        let currentComputedWeek = 1; // Номер недели, рассчитываемый динамически
 
         function setWeeklyRange() {
             const dateEl = document.getElementById('today-date');
@@ -432,9 +545,7 @@
             // Проверяем: сейчас ПОНЕДЕЛЬНИК до 15:00 по Москве?
             if (currentDayOfWeek === 1 && currentHours < 15) {
                 // Если да, замораживаем прошлую календарную неделю (с Пн по Вс)
-                // Конечной датой выставляем прошлое Воскресенье (вчерашний день)
                 endDate.setDate(moscowTime.getDate() - 1);
-                // Стартовой датой выставляем прошлый Понедельник (7 дней назад от сегодня)
                 startDate.setDate(moscowTime.getDate() - 7);
             } else {
                 // Во все остальные дни и часы идет стандартное скользящее окно (последние 7 дней по сегодня включительно)
@@ -454,6 +565,27 @@
                 : `${startDay} ${startMonth} - ${endDay} ${endMonth}`;
                 
             dateEl.innerHTML = `<i class="fa-regular fa-calendar"></i> ${dateString}`;
+
+            // Вычисляем номер недели перед загрузкой статистики
+            calculateCurrentWeek(moscowTime);
+        }
+
+        // Вычисление номера недели (фиксировано без склонений)
+        function calculateCurrentWeek(currentTime) {
+            const start = new Date(CONFIG.SEASON_START_DATE);
+            start.setHours(0, 0, 0, 0);
+
+            const today = new Date(currentTime);
+            today.setHours(0, 0, 0, 0);
+
+            const diffMs = today.getTime() - start.getTime();
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            
+            if (diffDays >= 0) {
+                currentComputedWeek = Math.floor(diffDays / 7) + 1;
+            } else {
+                currentComputedWeek = 1;
+            }
         }
 
         async function fetchData() {
@@ -462,7 +594,7 @@
             setWeeklyRange();
 
             try {
-                const response = await fetch(SCRIPT_URL);
+                const response = await fetch(CONFIG.SCRIPT_URL);
                 if (!response.ok) throw new Error("Сетевая ошибка запроса");
                 
                 const rawResult = await response.json();
@@ -473,6 +605,7 @@
                 // Проверяем структура ответа: { success: true, data: [...] }
                 if (rawResult && rawResult.success && Array.isArray(rawResult.data)) {
                     render(rawResult.data);
+                    calculateTeamStats(rawResult.data);
                     statusEl.innerHTML = '<i class="fa-solid fa-check"></i> Обновлено';
                     statusEl.classList.remove('anim-pulse');
                     statusEl.style.color = "var(--status-ok)"; 
@@ -487,6 +620,38 @@
                 statusEl.innerHTML = '<i class="fa-regular fa-calendar-xmark"></i> Офлайн';
                 renderDemo();
             }
+        }
+
+        // Вычисление и показ глобальной недельной статы
+        function calculateTeamStats(participants) {
+            const statBubble = document.getElementById('total-workouts-stat');
+            const combinedTextEl = document.getElementById('stat-combined-text');
+            if (statBubble && combinedTextEl) {
+                // Всегда выводится жестко слово "неделя" без склонений
+                combinedTextEl.textContent = `${currentComputedWeek} неделя`;
+                statBubble.style.display = 'inline-flex';
+            }
+        }
+
+        // Функции подсветки дня недели при наведении на день в шапке
+        function highlightDayCol(dayIndex) {
+            const containers = document.querySelectorAll('.rings-container');
+            containers.forEach(container => {
+                container.classList.add('highlight-day');
+                const rings = container.querySelectorAll('.day-ring');
+                if (rings[dayIndex]) {
+                    rings[dayIndex].classList.add('target-highlight');
+                }
+            });
+        }
+
+        function clearHighlightDayCol() {
+            const containers = document.querySelectorAll('.rings-container');
+            containers.forEach(container => {
+                container.classList.remove('highlight-day');
+                const rings = container.querySelectorAll('.day-ring');
+                rings.forEach(ring => ring.classList.remove('target-highlight'));
+            });
         }
 
         function render(participants) {
@@ -555,6 +720,7 @@
                 { name: "Толстоноженко Александр (Демо)", data: [0, 1, 1, 0, 1, 0, 0], streak: 0 }
             ];
             render(demoData);
+            calculateTeamStats(demoData);
         }
 
         function toggleDebug() {
