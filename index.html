@@ -29,9 +29,9 @@
         }
 
         .section-header {
-            margin-bottom: 20px;
-            padding: 0 4px 12px 4px;
-            border-bottom: 1px dashed var(--border);
+            margin-bottom: 24px;
+            padding: 0 4px 0 4px;
+            /* Убрали верхнюю разделительную линию для чистоты дизайна */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -98,14 +98,12 @@
             grid-template-columns: 20px 1fr 90px 180px;
             align-items: center;
             gap: 8px;
-            padding: 0 12px;
-            margin-bottom: 8px;
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
+            padding: 0 12px 10px 12px; /* Нижний внутренний отступ */
+            margin-bottom: 12px;
+            font-size: 11px; /* Чуть крупнее и мягче */
+            font-weight: 600;
             color: var(--text-muted);
-            font-weight: 700;
-            opacity: 0.8;
+            border-bottom: 1px solid rgba(229, 224, 216, 0.6); /* Нежный горизонтальный разделитель под шапкой */
             user-select: none;
         }
 
@@ -356,9 +354,15 @@
         <!-- Шапка таблицы с заголовками -->
         <div class="leaderboard-header">
             <div></div> <!-- Ранг (без текста) -->
-            <div>Участник</div>
+            <div class="flex items-center gap-1.5">
+                <i class="fa-regular fa-user text-[10px] text-gray-400"></i>
+                <span>Участники</span>
+            </div>
             <!-- Объединенный заголовок активности выровнен по левому краю строго над линией-разделителем -->
-            <div style="grid-column: 3 / 5; text-align: left;" class="pl-[17px]">Активность</div>
+            <div style="grid-column: 3 / 5; text-align: left;" class="pl-[12px] flex items-center gap-1.5">
+                <i class="fa-solid fa-chart-line text-[10px] text-gray-400"></i>
+                <span>Активность и прогресс</span>
+            </div>
         </div>
 
         <!-- Контейнер карточек -->
