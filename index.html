@@ -16,7 +16,7 @@
             --accent: #708A74; /* Элегантный шалфейно-зеленый для линии прогресса */
             --accent-soft: #E8E2D9;
             --border: #E5E0D8;
-            --active-day: #D97757; /* Яркий терракотовый для выполненных дней */
+            --active-day: #D97757; /* Яркий терракотовый для выполненных дней и огонька */
             --status-ok: #16A34A; /* Зеленый для успешного обновления */
         }
 
@@ -122,12 +122,42 @@
         .rank-2 .rank-number { color: #7D7D7D; }
         .rank-3 .rank-number { color: #A67C52; }
 
+        .user-name-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0; /* Позволяет тексту корректно сжиматься и использовать многоточие */
+        }
+
         .user-name {
             font-size: 13px;
             font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            flex-shrink: 1;
+            min-width: 0;
+        }
+
+        /* Стиль иконки ударного режима */
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 2.5px;
+            color: var(--active-day);
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .streak-badge svg {
+            animation: flameFlicker 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes flameFlicker {
+            0% { transform: scale(1) rotate(0deg); opacity: 0.95; }
+            100% { transform: scale(1.06) rotate(-2deg); opacity: 1; }
         }
 
         .rings-container {
@@ -245,8 +275,6 @@
             }
             .section-header { 
                 align-items: center;
-                padding-bottom: 10px; /* Немного компактнее на мобильных */
-                margin-bottom: 16px;
             }
             .table-footnote {
                 flex-direction: column;
@@ -313,6 +341,7 @@
     </div>
 
     <script>
+        // Актуальный URL деплоя Google Apps Script
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzPOszPmAKzvS51vSUAGombHUEW8ucgaB5kXp-YIerboC2EGMJcMJITP7LKO7Stb9D/exec"; 
 
         function setWeeklyRange() {
@@ -354,7 +383,7 @@
                 const data = await response.json();
                 
                 if (data.error) {
-                    statusEl.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Ошибка';
+                    statusEl.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Ошибка API';
                     renderDemo();
                     return;
                 }
@@ -378,11 +407,25 @@
             }
 
             const sorted = participants
-                .map(p => ({
-                    ...p,
-                    safeData: Array.isArray(p.data) ? p.data : [0,0,0,0,0,0,0],
-                    total: Array.isArray(p.data) ? p.data.reduce((a, b) => a + b, 0) : 0
-                }))
+                .map(p => {
+                    // Максимально устойчивый парсинг переменной streak (поддерживает string, number, undefined, null)
+                    let rawStreak = 0;
+                    if (p.streak !== undefined && p.streak !== null) {
+                        rawStreak = parseInt(p.streak, 10);
+                    } else if (p.Streak !== undefined && p.Streak !== null) {
+                        rawStreak = parseInt(p.Streak, 10);
+                    }
+                    if (isNaN(rawStreak)) {
+                        rawStreak = 0;
+                    }
+
+                    return {
+                        ...p,
+                        safeData: Array.isArray(p.data) ? p.data : [0,0,0,0,0,0,0],
+                        total: Array.isArray(p.data) ? p.data.reduce((a, b) => a + b, 0) : 0,
+                        streak: rawStreak
+                    };
+                })
                 .sort((a, b) => b.total - a.total);
 
             container.innerHTML = sorted.map((p, i) => {
@@ -390,10 +433,24 @@
                 const progressWidth = (p.total / 7) * 100;
                 const rings = p.safeData.map(a => `<div class="day-ring ${a ? 'active' : ''}"></div>`).join('');
                 
+                // Рендерим точный кастомный SVG-огонёк, если количество недель ударного режима СТРОГО больше 0
+                const streakHtml = p.streak > 0 
+                    ? `<span class="streak-badge" title="Ударный режим: ${p.streak} нед.">
+                        <svg class="flame-icon" width="11" height="14" viewBox="0 0 11 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
+                            <path d="M5.5 0C5.5 0 9 3.5 9 7C9 10 7 12.2 5 12.2C3 12.2 2.6 9.6 2.6 9.6C2.6 9.6 0.5 11 0.5 12.8C0.5 14 3 14 5 14C8.2 14 10.2 11 10.2 7.8C10.2 3.8 5.5 0 5.5 0Z" fill="#D97757"/>
+                            <path d="M5.1 5.2C5.1 5.2 7.1 7.2 7.1 9.2C7.1 11.2 5.8 12 4.6 12C3.4 12 3.1 10.2 3.1 10.2C3.1 10.2 1.6 11.2 1.6 12.8C1.6 13.8 3.1 14.2 4.6 14.2C6.6 14.2 8.1 12.5 8.1 10.5C8.1 8 5.1 5.2 5.1 5.2Z" fill="#FFF" opacity="0.4"/>
+                        </svg>
+                        ${p.streak}
+                       </span>` 
+                    : '';
+                
                 return `
                     <div class="leaderboard-card rank-${rank}">
                         <div class="rank-number">${rank}</div>
-                        <div class="user-name">${p.name}</div>
+                        <div class="user-name-wrapper">
+                            <div class="user-name">${p.name}</div>
+                            ${streakHtml}
+                        </div>
                         <div class="rings-container">${rings}</div>
                         <div class="progress-mini">
                             <div class="progress-fill" style="width: ${progressWidth}%"></div>
@@ -407,7 +464,14 @@
         }
 
         function renderDemo() {
-            const demoData = [{ name: "Ожидание данных...", data: [0, 0, 0, 0, 0, 0, 0] }];
+            // Тестовые данные с реалистичным распределением ударных режимов для наглядности превью
+            const demoData = [
+                { name: "Соломин Денис", data: [1, 1, 1, 1, 1, 0, 0], streak: 1 },
+                { name: "Мурадян Акоп", data: [1, 1, 1, 1, 1, 1, 0], streak: 5 },
+                { name: "Халитов Михаил", data: [1, 1, 1, 0, 1, 0, 0], streak: 2 },
+                { name: "Толстоноженко Александр", data: [1, 0, 1, 1, 0, 0, 0], streak: 0 }, // 0 - огонек скроется
+                { name: "Ожидание данных...", data: [0, 0, 0, 0, 0, 0, 0], streak: 0 } // 0 - огонек скроется
+            ];
             render(demoData);
         }
 
