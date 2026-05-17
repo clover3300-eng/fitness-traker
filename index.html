@@ -16,7 +16,7 @@
             --accent: #708A74; /* Элегантный шалфейно-зеленый для линии прогресса */
             --accent-soft: #E8E2D9;
             --border: #E5E0D8;
-            --active-day: #D97757; /* Яркий терракотовый для выполненных дней (огоньки активности) */
+            --active-day: #D97757; /* Яркий терракотовый для выполненных дней */
             --status-ok: #16A34A; /* Зеленый для успешного обновления */
         }
 
@@ -29,7 +29,8 @@
 
         .section-header {
             margin-bottom: 20px;
-            padding: 0 4px;
+            padding: 0 4px 12px 4px; /* Добавлен отступ снизу */
+            border-bottom: 1px dashed var(--border); /* Линия разделения, как в легенде */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -104,7 +105,7 @@
             border-radius: 8px;
             padding: 6px 12px;
             display: grid;
-            /* Сетка: Ранг (фиксир) | Имя (фиксир) | Квадраты (фиксир) | Линия (гибкая) | Счет (авто) */
+            /* Сетка: Ранг | Имя | Квадраты | Линия | Счет */
             grid-template-columns: 20px 190px 75px 1fr auto;
             align-items: center;
             gap: 8px;
@@ -143,7 +144,7 @@
 
         .day-ring.active { 
             background-color: var(--active-day); 
-            box-shadow: 0 1px 2px rgba(217, 119, 87, 0.2); /* Легкое терракотовое свечение */
+            box-shadow: 0 1px 2px rgba(217, 119, 87, 0.2); 
         }
 
         .progress-mini {
@@ -167,63 +168,99 @@
 
         .compact-container { max-width: 520px; margin: 0 auto; }
 
-        /* Стильный компактный футер-сноска */
+        /* Усовершенствованный интерактивный футер-легенда */
         .table-footnote {
-            margin-top: 16px;
-            padding: 10px 4px 0 4px;
+            margin-top: 20px;
+            padding-top: 12px;
             border-top: 1px dashed var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 10px;
             color: var(--text-muted);
-        }
-
-        .footnote-days {
-            display: flex;
-            gap: 5px;
-            font-weight: 600;
-            color: var(--text-muted);
-            letter-spacing: 0.02em;
+            gap: 12px;
         }
 
         .footnote-legend {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 5px;
+            font-weight: 500;
+            color: var(--text-muted);
         }
 
         .legend-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 1px;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        .footnote-days-badge {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            background-color: rgba(229, 224, 216, 0.3);
+            padding: 3px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(229, 224, 216, 0.6);
+        }
+
+        .footnote-days-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-right: 4px;
+            opacity: 0.8;
+        }
+
+        .day-letter-box {
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: 700;
+            border-radius: 3px;
+            background-color: var(--bg-main);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
         }
         
         @media (max-width: 440px) {
             .leaderboard-card { 
-                /* На мобильных выделяем 150px под имя, чтобы всё аккуратно помещалось на узком экране */
                 grid-template-columns: 15px 150px 70px 1fr auto; 
                 gap: 6px;
             }
             .user-name {
-                font-size: 12px; /* Слегка уменьшаем шрифт на смартфонах для гарантированного входа */
+                font-size: 12px;
             }
             .section-header { 
                 align-items: center;
-            }
-            .section-title {
-                font-size: 13px;
+                padding-bottom: 10px; /* Немного компактнее на мобильных */
+                margin-bottom: 16px;
             }
             .table-footnote {
                 flex-direction: column;
-                gap: 8px;
-                align-items: flex-start;
+                gap: 12px;
+                align-items: center;
+                text-align: center;
+            }
+            .footnote-legend {
+                justify-content: center;
+                width: 100%;
+            }
+            .footnote-days-badge {
+                justify-content: center;
+                width: 100%;
             }
         }
     </style>
@@ -231,6 +268,7 @@
 <body class="py-5 px-3">
 
     <div class="compact-container">
+        <!-- Оригинальная верхняя панель с линией разделения -->
         <div class="section-header">
             <span class="section-title">
                 <i class="fa-solid fa-bolt"></i>
@@ -250,18 +288,26 @@
             <!-- Данные подгрузятся сюда -->
         </div>
 
-        <!-- Сноска с расшифровкой дней недели и цветов -->
+        <!-- Усовершенствованная легенда -->
         <div class="table-footnote">
             <div class="footnote-legend">
                 <span class="legend-item">
-                    <span class="legend-dot" style="background-color: var(--active-day);"></span> Тренировка
+                    <span class="legend-dot" style="background-color: var(--active-day); box-shadow: 0 1px 2px rgba(217, 119, 87, 0.2);"></span> Тренировка
                 </span>
                 <span class="legend-item">
-                    <span class="legend-dot" style="background-color: var(--accent-soft);"></span> Отдых
+                    <span class="legend-dot" style="background-color: var(--accent-soft); border: 1px solid rgba(0,0,0,0.05);"></span> Отдых
                 </span>
             </div>
-            <div class="footnote-days">
-                <span>ПН</span>•<span>ВТ</span>•<span>СР</span>•<span>ЧТ</span>•<span>ПТ</span>•<span>СБ</span>•<span>ВС</span>
+            
+            <div class="footnote-days-badge">
+                <span class="footnote-days-label">Дни недели:</span>
+                <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">П</div>
+                <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">В</div>
+                <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">С</div>
+                <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">Ч</div>
+                <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">П</div>
+                <div class="day-letter-box" style="background-color: var(--accent-soft); opacity: 0.9;">С</div>
+                <div class="day-letter-box" style="background-color: var(--accent-soft); opacity: 0.9;">В</div>
             </div>
         </div>
     </div>
@@ -290,7 +336,6 @@
             const endDay = endDate.getDate();
             const endMonth = monthNames[endDate.getMonth()];
             
-            // Форматируем вывод: "11 - 17 мая" или "29 апр - 5 мая" (если неделя переходящая)
             const dateString = startMonth === endMonth 
                 ? `${startDay} - ${endDay} ${startMonth}`
                 : `${startDay} ${startMonth} - ${endDay} ${endMonth}`;
