@@ -89,7 +89,7 @@
         .header-stat-bubble {
             background-color: var(--accent);
             color: #ffffff;
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 700;
             padding: 0 10px;
             border-radius: 100px;
@@ -99,7 +99,7 @@
             box-shadow: 0 1px 2px rgba(112, 138, 116, 0.08);
             height: 23px; /* Идеальная компактная высота */
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.06em;
         }
 
         /* Премиальный сплит-бадж цели недели — утонченная высота */
@@ -117,15 +117,15 @@
         }
 
         .bubble-label {
-            font-size: 7.5px;
+            font-size: 8px;
             font-weight: 700;
             color: rgba(232, 226, 217, 0.9);
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.06em;
             padding: 0 6px 0 6px;
             display: inline-flex;
             align-items: center;
-            gap: 3px;
+            gap: 3.5px;
         }
 
         /* Белая nested-плашка — аккуратная высота под формат 23px */
@@ -435,7 +435,7 @@
                 <div class="ml-2">
                     <span id="total-workouts-stat" class="header-stat-bubble" style="display: none;">
                         <i class="fa-solid fa-calendar-week text-[9px]"></i>
-                        <span id="stat-combined-text">1 неделя</span>
+                        <span id="stat-combined-text">1 НЕДЕЛЯ</span>
                     </span>
                 </div>
             </div>
@@ -621,8 +621,8 @@
             const statBubble = document.getElementById('total-workouts-stat');
             const combinedTextEl = document.getElementById('stat-combined-text');
             if (statBubble && combinedTextEl) {
-                // Всегда выводится жестко слово "неделя" без склонений
-                combinedTextEl.textContent = `${currentComputedWeek} неделя`;
+                // Переводим текст в верхний регистр для единообразия с баджем "ЦЕЛЬ"
+                combinedTextEl.textContent = `${currentComputedWeek} НЕДЕЛЯ`;
                 statBubble.style.display = 'inline-flex';
             }
         }
