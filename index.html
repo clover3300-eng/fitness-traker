@@ -531,8 +531,8 @@
             let startDate = new Date(moscowTime);
             let endDate = new Date(moscowTime);
             
-            // Проверяем: сейчас ПОНЕДЕЛЬНИК до 15:00 по Москве?
-            if (currentDayOfWeek === 1 && currentHours < 15) {
+            // Проверяем: сейчас ПОНЕДЕЛЬНИК до 19:00 по Москве?
+            if (currentDayOfWeek === 1 && currentHours < 19) {
                 // Если да, замораживаем прошлую календарную неделю (с Пн по Вс)
                 endDate.setDate(moscowTime.getDate() - 1);
                 startDate.setDate(moscowTime.getDate() - 7);
