@@ -85,90 +85,79 @@
             letter-spacing: -0.01em;
         }
 
-        /* Унифицированные правила шрифтов для элементов баджей во избежание различий в рендере */
-        .header-stat-bubble,
-        .header-split-bubble,
-        .bubble-label,
-        .bubble-value-flat,
-        .goal-value-accent,
-        .goal-value-muted {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* Премиальный классический бадж недели — утонченная высота */
-        .header-stat-bubble {
-            background-color: var(--accent);
-            color: #ffffff;
-            font-size: 9px;
-            font-weight: 700;
+        /* Единый ДНК-класс для революционных бесшовных баджей */
+        .header-badge-capsule {
+            display: inline-flex;
+            align-items: center;
+            height: 23px;
+            border-radius: 100px;
             padding: 0 10px;
-            border-radius: 100px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            box-shadow: 0 1px 2px rgba(112, 138, 116, 0.08);
-            height: 23px; /* Идеальная компактная высота */
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            line-height: 1;
-        }
-
-        /* Усовершенствованный плоский сплит-бадж цели недели (без вложенности) */
-        .header-split-bubble {
-            display: inline-flex;
-            align-items: center;
-            background-color: #2D312E; 
-            border-radius: 100px;
-            padding: 0 12px; /* Прекрасные комфортные горизонтальные отступы */
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            user-select: none;
-            box-shadow: 0 2px 5px rgba(45, 49, 46, 0.1);
-            margin-right: 4px; 
-            height: 23px; /* Высота строго совпадает с левым баджем недели */
-        }
-
-        .bubble-label {
-            font-size: 9px; /* Сделали строго 9px, как и у левого баджа */
-            font-weight: 700;
-            color: rgba(232, 226, 217, 0.9);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            display: inline-flex;
-            align-items: center;
-            gap: 3.5px;
-            line-height: 1;
-        }
-
-        /* Тонкий вертикальный разделитель | */
-        .bubble-divider {
-            width: 1px;
-            height: 11px;
-            background-color: rgba(232, 226, 217, 0.2);
-            margin: 0 8px;
-        }
-
-        /* Новая плоская правая часть без белой подложки */
-        .bubble-value-flat {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-        }
-
-        /* Главная цифра цели теперь белая на темном фоне баджа */
-        .goal-value-accent {
-            font-size: 11.5px;
-            font-weight: 800;
-            color: #ffffff;
-            line-height: 1;
-        }
-
-        /* Второстепенная часть цели мягко приглушена */
-        .goal-value-muted {
             font-size: 9px;
-            color: rgba(232, 226, 217, 0.55);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             line-height: 1;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            -webkit-font-smoothing: antialiased;
+            transition: all 0.2s ease;
+        }
+
+        /* Бадж недели: воздушный, светлый, с деликатным зеленым акцентом-точкой */
+        .badge-week-revolutionary {
+            background-color: rgba(255, 255, 255, 0.6);
+            color: #4A4D4A;
+            border: 1px solid rgba(112, 138, 116, 0.25);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            gap: 5px;
+        }
+
+        /* Маленький живой индикатор текущей недели */
+        .week-indicator-dot {
+            width: 5px;
+            height: 5px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Бадж цели: роскошный матовый темно-графитовый монохром с притягательным золотым кубком */
+        .badge-goal-revolutionary {
+            background-color: #2D312E;
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            gap: 4px;
+        }
+
+        .goal-label-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        /* Тонкий разделитель внутри баджа цели */
+        .badge-inner-divider {
+            width: 1px;
+            height: 9px;
+            background-color: rgba(255, 255, 255, 0.15);
+            margin: 0 4px;
+        }
+
+        .goal-numbers {
+            display: inline-flex;
+            align-items: center;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            gap: 2.5px; /* Добавили шаг-зазор, аналогично зазору в карточках */
+        }
+
+        .goal-number-accent {
+            color: #ffffff;
+            font-size: 11px; /* Сбалансированный размер акцента */
+        }
+
+        .goal-number-muted {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 9px; /* Сбалансированный приглушенный размер */
             font-weight: 500;
         }
 
@@ -471,11 +460,11 @@
         
         @media (max-width: 440px) {
             .leaderboard-header {
-                grid-template-columns: 15px 1fr 80px 45px; 
+                grid-template-columns: 15px 1fr 80px 55px; /* Увеличено с 45px до 55px */
                 gap: 6px;
             }
             .leaderboard-card { 
-                grid-template-columns: 15px 1fr 80px 45px; 
+                grid-template-columns: 15px 1fr 80px 55px; /* Увеличено с 45px до 55px */
                 gap: 6px;
             }
             .rings-container {
@@ -487,6 +476,16 @@
             }
             .user-name { font-size: 12px; }
             .table-footnote { flex-direction: column; gap: 12px; }
+
+            /* Революционная адаптивность: прячем текст "Цель" и разделитель на малых экранах */
+            .goal-label-text,
+            .badge-inner-divider {
+                display: none !important;
+            }
+            .badge-goal-revolutionary {
+                padding: 0 6px !important;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -509,10 +508,10 @@
                 <i class="fa-regular fa-user text-[11px] text-[#555251] opacity-90"></i>
                 <span>Участники</span>
                 
-                <!-- Восстановленный аккуратный классический бадж недели -->
-                <div class="ml-2">
-                    <span id="total-workouts-stat" class="header-stat-bubble" style="display: none;">
-                        <i class="fa-solid fa-calendar-week text-[9px]"></i>
+                <!-- Революционный светлый бадж недели -->
+                <div class="ml-2.5">
+                    <span id="total-workouts-stat" class="header-badge-capsule badge-week-revolutionary" style="display: none;">
+                        <span class="week-indicator-dot"></span>
                         <span id="stat-combined-text">1 НЕДЕЛЯ</span>
                     </span>
                 </div>
@@ -523,18 +522,15 @@
                 <i class="fa-regular fa-calendar text-[11px] text-[#555251] mr-1.5 opacity-90"></i>
                 <span id="today-date" class="header-date-text">-</span>
             </div>
-            <!-- Новый лаконичный бадж цели недели с изящным разделителем | -->
+            <!-- Революционный матовый темный бадж цели без вложенной подложки, с элегантным кубком -->
             <div class="header-section-label justify-end">
-                <div class="header-split-bubble" title="Спортивная цель на текущую неделю">
-                    <span class="bubble-label">
-                        <i class="fa-solid fa-arrow-trend-up text-[7.5px] opacity-80"></i>
-                        <span>Цель</span>
-                    </span>
-                    <div class="bubble-divider"></div>
-                    <span class="bubble-value-flat">
-                        <i class="fa-solid fa-trophy text-[9px] text-amber-500 mr-0.5"></i>
-                        <span class="goal-value-accent">5</span>
-                        <span class="goal-value-muted">/7</span>
+                <div class="header-badge-capsule badge-goal-revolutionary" title="Спортивная цель на текущую неделю">
+                    <span class="goal-label-text">Цель</span>
+                    <div class="badge-inner-divider"></div>
+                    <span class="goal-numbers">
+                        <i class="fa-solid fa-trophy text-[9px] text-amber-500"></i>
+                        <span class="goal-number-accent">5</span>
+                        <span class="goal-number-muted">/7</span>
                     </span>
                 </div>
             </div>
@@ -594,7 +590,7 @@
     </div>
 
     <script>
-        // Глобальные настройки трекера
+        // Глобальные настройки тредера
         const CONFIG = {
             // Дата официального начала фитнес-сезона (Понедельник, 11 мая 2026 года)
             SEASON_START_DATE: "2026-05-11",
