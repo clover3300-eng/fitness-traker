@@ -58,10 +58,10 @@
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         .anim-pulse { animation: pulse 2s infinite; }
 
-        /* Идеальная пропорциональная сетка: левая колонка имени расширена до 1.35fr для свободного размещения имен */
+        /* Абсолютно симметричная сетка с гарантированным минимумом ширины для имен и прогресса (minmax 185px) */
         .leaderboard-header {
             display: grid;
-            grid-template-columns: 24px 1.35fr 130px 1.25fr;
+            grid-template-columns: 24px minmax(185px, 1fr) 130px minmax(185px, 1fr);
             align-items: center;
             gap: 8px;
             padding: 10px 12px;
@@ -221,7 +221,7 @@
             padding: 8px 12px;
             display: grid;
             /* Точно такая же симметричная сетка, как и у шапки */
-            grid-template-columns: 24px 1.35fr 130px 1.25fr;
+            grid-template-columns: 24px minmax(185px, 1fr) 130px minmax(185px, 1fr);
             align-items: center;
             gap: 8px;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -248,7 +248,7 @@
             flex-wrap: nowrap; /* Строгий запрет на перенос огонька */
             gap: 3px; /* Минимальный зазор для плотного и сочного примыкания */
             min-width: 0;
-            padding-right: 2px;
+            padding-right: 6px; /* Оптимизировано с 12px до 6px для сохранения полезной ширины */
         }
 
         .user-name {
@@ -259,8 +259,7 @@
             text-overflow: clip; 
             white-space: nowrap; 
             flex-shrink: 1;
-            /* Тонкий буфер безопасности, предотвращающий обрезание букв, но не создающий пустоту */
-            padding-right: 1px; 
+            padding-right: 4px; /* Буфер безопасности, чтобы "р", "д", "у" не обрезались на стыке с SVG */
         }
 
         /* Огонёк ударного режима */
@@ -357,7 +356,7 @@
             width: 100%;
             justify-content: flex-end;
             min-width: 0;
-            padding-left: 16px; 
+            padding-left: 16px; /* Идеально симметричный отступ справа от вертикальной линии */
         }
 
         /* Классический тонкий прогресс-бар */
@@ -496,11 +495,11 @@
         
         @media (max-width: 440px) {
             .leaderboard-header {
-                grid-template-columns: 15px 1.25fr 105px 75px; 
+                grid-template-columns: 15px 1.25fr 105px 1fr; 
                 gap: 4px;
             }
             .leaderboard-card { 
-                grid-template-columns: 15px 1.25fr 105px 75px; 
+                grid-template-columns: 15px 1.25fr 105px 1fr; 
                 gap: 4px;
             }
             .rings-container {
