@@ -58,10 +58,10 @@
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         .anim-pulse { animation: pulse 2s infinite; }
 
-        /* Идеальная пропорциональная сетка: расширена колонка имени для полного вмещения */
+        /* Идеальная пропорциональная сетка: расширена колонка имени и баджей, оптимизирована зона дат */
         .leaderboard-header {
             display: grid;
-            grid-template-columns: 24px minmax(180px, 1.5fr) 145px 190px;
+            grid-template-columns: 24px minmax(180px, 1.5fr) 130px 205px;
             align-items: center;
             gap: 8px;
             padding: 10px 12px;
@@ -213,7 +213,7 @@
             border-radius: 8px;
             padding: 8px 12px;
             display: grid;
-            grid-template-columns: 24px minmax(180px, 1.5fr) 145px 190px;
+            grid-template-columns: 24px minmax(180px, 1.5fr) 130px 205px;
             align-items: center;
             gap: 8px;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -309,7 +309,7 @@
             stroke: none;
         }
 
-        /* Блок активностей с двухсторонними границами | | (ширина оптимизирована до 145px) */
+        /* Блок активностей с двухсторонними границами | | (ширина оптимизирована до 130px) */
         .rings-container {
             display: flex;
             gap: 4px; 
@@ -563,8 +563,8 @@
                 <i class="fa-regular fa-calendar text-[11px] text-[#555251] mr-1.5 opacity-90"></i>
                 <span id="today-date" class="header-date-text">-</span>
             </div>
-            <!-- Революционная пара правых баджей: "Всего участников с огоньками" + "Цель" (с левым падингом pl-3 для отступа от разделителя) -->
-            <div class="header-section-label justify-end gap-1.5 pl-3">
+            <!-- Революционная пара правых баджей: "Всего участников с огоньками" + "Цель" -->
+            <div class="header-section-label justify-end gap-1.5">
                 <!-- Новый супер-компактный бадж-напарник: Всего участников с активными огоньками -->
                 <div id="team-total-badge" class="header-badge-capsule badge-total-compact" style="display: none;" title="Количество участников с активной ударной серией">
                     <!-- Эстетичный двухслойный SVG-огонёк, гармонирующий по цвету с баджем -->
