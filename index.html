@@ -120,25 +120,25 @@
             display: inline-block;
         }
 
-        /* Бадж цели: роскошный матовый темно-графитовый монохром с притягательным золотым кубком */
+        /* Бадж цели: роскошный матовый шалфейно-зеленый средней насыщенности */
         .badge-goal-revolutionary {
-            background-color: #2D312E;
-            color: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            background-color: #5F7562; /* Заменили слишком темный хвойный на свежий и мягкий шалфейный */
+            color: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: 0 2px 5px rgba(95, 117, 98, 0.12); /* Мягкая тень в тон подложке */
             gap: 4px;
         }
 
         .goal-label-text {
-            color: rgba(255, 255, 255, 0.6);
-            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8); /* Более чистый контраст */
+            font-weight: 600;
         }
 
         /* Тонкий разделитель внутри баджа цели */
         .badge-inner-divider {
             width: 1px;
             height: 9px;
-            background-color: rgba(255, 255, 255, 0.15);
+            background-color: rgba(255, 255, 255, 0.25);
             margin: 0 4px;
         }
 
@@ -147,7 +147,7 @@
             align-items: center;
             font-weight: 800;
             letter-spacing: 0.01em;
-            gap: 2.5px; /* Добавили шаг-зазор, аналогично зазору в карточках */
+            gap: 3px; /* Идеальный, точно выверенный отступ, дублирующий логику строк */
         }
 
         .goal-number-accent {
@@ -156,7 +156,7 @@
         }
 
         .goal-number-muted {
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.55);
             font-size: 9px; /* Сбалансированный приглушенный размер */
             font-weight: 500;
         }
@@ -522,7 +522,7 @@
                 <i class="fa-regular fa-calendar text-[11px] text-[#555251] mr-1.5 opacity-90"></i>
                 <span id="today-date" class="header-date-text">-</span>
             </div>
-            <!-- Революционный матовый темный бадж цели без вложенной подложки, с элегантным кубком -->
+            <!-- Революционный матовый умеренно-шалфейный бадж цели без вложенной подложки, с элегантным кубком -->
             <div class="header-section-label justify-end">
                 <div class="header-badge-capsule badge-goal-revolutionary" title="Спортивная цель на текущую неделю">
                     <span class="goal-label-text">Цель</span>
