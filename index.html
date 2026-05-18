@@ -85,9 +85,20 @@
             letter-spacing: -0.01em;
         }
 
+        /* Унифицированные правила шрифтов для элементов баджей во избежание различий в рендере */
+        .header-stat-bubble,
+        .header-split-bubble,
+        .bubble-label,
+        .bubble-value-flat,
+        .goal-value-accent,
+        .goal-value-muted {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
         /* Премиальный классический бадж недели — утонченная высота */
         .header-stat-bubble {
-            font-family: inherit; /* Гарантируем идеальное наследование шрифта */
             background-color: var(--accent);
             color: #ffffff;
             font-size: 9px;
@@ -104,61 +115,59 @@
             line-height: 1;
         }
 
-        /* Премиальный сплит-бадж цели недели — утонченная высота */
+        /* Усовершенствованный плоский сплит-бадж цели недели (без вложенности) */
         .header-split-bubble {
             display: inline-flex;
             align-items: center;
             background-color: #2D312E; 
             border-radius: 100px;
-            padding: 2px; /* Уменьшенный отступ рамки */
-            border: 1px solid rgba(112, 138, 116, 0.1);
+            padding: 0 12px; /* Прекрасные комфортные горизонтальные отступы */
+            border: 1px solid rgba(255, 255, 255, 0.05);
             user-select: none;
-            box-shadow: 0 2px 5px rgba(45, 49, 46, 0.05);
+            box-shadow: 0 2px 5px rgba(45, 49, 46, 0.1);
             margin-right: 4px; 
             height: 23px; /* Высота строго совпадает с левым баджем недели */
         }
 
         .bubble-label {
-            font-family: inherit; /* Избегаем браузерных расхождений */
-            font-size: 9px; /* Выравниваем размер с левым баджем */
+            font-size: 9px; /* Сделали строго 9px, как и у левого баджа */
             font-weight: 700;
             color: rgba(232, 226, 217, 0.9);
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            padding: 0 7px 0 7px; /* Симметричные отступы */
             display: inline-flex;
             align-items: center;
             gap: 3.5px;
             line-height: 1;
         }
 
-        /* Белая nested-плашка — аккуратная высота под формат 23px */
-        .bubble-value {
-            background-color: #ffffff;
-            border-radius: 98px; 
-            padding: 0 7px;
-            height: 100%; /* Автоматически заполняет внутреннее пространство */
+        /* Тонкий вертикальный разделитель | */
+        .bubble-divider {
+            width: 1px;
+            height: 11px;
+            background-color: rgba(232, 226, 217, 0.2);
+            margin: 0 8px;
+        }
+
+        /* Новая плоская правая часть без белой подложки */
+        .bubble-value-flat {
             display: inline-flex;
             align-items: center;
             gap: 3px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
         }
 
-        /* Главная цифра цели — соразмерный масштаб */
+        /* Главная цифра цели теперь белая на темном фоне баджа */
         .goal-value-accent {
-            font-family: inherit;
             font-size: 11.5px;
             font-weight: 800;
-            color: var(--text-main);
+            color: #ffffff;
             line-height: 1;
         }
 
-        /* Второстепенная часть цели — соразмерный масштаб */
+        /* Второстепенная часть цели мягко приглушена */
         .goal-value-muted {
-            font-family: inherit;
             font-size: 9px;
-            color: var(--text-muted);
-            opacity: 0.5;
+            color: rgba(232, 226, 217, 0.55);
             line-height: 1;
             font-weight: 500;
         }
@@ -514,14 +523,15 @@
                 <i class="fa-regular fa-calendar text-[11px] text-[#555251] mr-1.5 opacity-90"></i>
                 <span id="today-date" class="header-date-text">-</span>
             </div>
-            <!-- Сплит-бадж цели недели (двойная пилюля) -->
+            <!-- Новый лаконичный бадж цели недели с изящным разделителем | -->
             <div class="header-section-label justify-end">
                 <div class="header-split-bubble" title="Спортивная цель на текущую неделю">
                     <span class="bubble-label">
                         <i class="fa-solid fa-arrow-trend-up text-[7.5px] opacity-80"></i>
                         <span>Цель</span>
                     </span>
-                    <span class="bubble-value">
+                    <div class="bubble-divider"></div>
+                    <span class="bubble-value-flat">
                         <i class="fa-solid fa-trophy text-[9px] text-amber-500 mr-0.5"></i>
                         <span class="goal-value-accent">5</span>
                         <span class="goal-value-muted">/7</span>
@@ -712,7 +722,7 @@
             const statBubble = document.getElementById('total-workouts-stat');
             const combinedTextEl = document.getElementById('stat-combined-text');
             if (statBubble && combinedTextEl) {
-                // Переводим текст в верхний регистр для единообразия с баджем "ЦЕЛЬ"
+                // Возвращаем исходный текстовый формат ("X НЕДЕЛЯ")
                 combinedTextEl.textContent = `${currentComputedWeek} НЕДЕЛЯ`;
                 statBubble.style.display = 'inline-flex';
             }
