@@ -315,6 +315,23 @@
             fill: #FFE3A8; 
         }
 
+        /* Интерактивное редактирование огоньков прямо в таблице */
+        .streak-badge-value {
+            outline: none;
+            cursor: text;
+            min-width: 12px;
+            display: inline-block;
+            text-align: center;
+            border-radius: 3px;
+            padding: 0 2px;
+            transition: background-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .streak-badge-value:hover, .streak-badge-value:focus {
+            background-color: rgba(232, 123, 74, 0.15);
+            box-shadow: 0 0 0 1px rgba(232, 123, 74, 0.25);
+        }
+
         /* Неактивное состояние огонька */
         .streak-badge.inactive {
             color: var(--streak-inactive);
@@ -354,6 +371,11 @@
             border-radius: 1.5px;
             background-color: var(--accent-soft);
             transition: all 0.15s ease;
+            cursor: pointer;
+        }
+
+        .day-ring:hover {
+            transform: scale(1.3);
         }
 
         .day-ring.active { 
@@ -591,12 +613,18 @@
             <div class="leaderboard-header">
                 <div></div> <!-- Ранг -->
                 <div class="header-section-label">
-                    <!-- Революционный светлый бадж недели с уменьшенным отступом ml-1 -->
-                    <div class="ml-1">
+                    <!-- Революционный светлый бадж недели с переключателями -->
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="changeWeek(-1)" class="w-5 h-5 flex items-center justify-center rounded-full bg-white/60 border border-gray-300 hover:bg-white transition-all text-[8px] text-gray-600 focus:outline-none" title="Предыдущая неделя">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
                         <span id="total-workouts-stat" class="header-badge-capsule badge-week-revolutionary" style="display: none;">
                             <span class="week-indicator-dot"></span>
                             <span id="stat-combined-text">1 НЕДЕЛЯ</span>
                         </span>
+                        <button onclick="changeWeek(1)" class="w-5 h-5 flex items-center justify-center rounded-full bg-white/60 border border-gray-300 hover:bg-white transition-all text-[8px] text-gray-600 focus:outline-none" title="Следующая неделя">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
                     </div>
                 </div>
                 <!-- Дата диапазона недели, идеально центрированная над точками активности и симметрично отделенная | | -->
@@ -653,6 +681,10 @@
                     <span class="legend-item">
                         <span class="legend-dot" style="background-color: var(--accent-soft);"></span> Отдых
                     </span>
+                    <!-- Кнопка интерактивного сброса ручных изменений -->
+                    <button id="reset-overrides-btn" onclick="resetWeekOverrides()" class="text-[9px] uppercase tracking-wider text-amber-700/60 hover:text-amber-800 transition-all font-semibold ml-4" title="Сбросить все ручные изменения дней и огоньков для этой недели">
+                        <i class="fa-solid fa-arrow-rotate-left mr-1"></i> Сбросить изменения
+                    </button>
                 </div>
                 
                 <div class="footnote-days-badge">
@@ -712,26 +744,114 @@
             SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxzPOszPmAKzvS51vSUAGombHUEW8ucgaB5kXp-YIerboC2EGMJcMJITP7LKO7Stb9D/exec"
         };
 
-        let currentComputedWeek = 1;
+        // Текущая активная неделя и исходные данные участников
+        let activeWeek = 1;
+        let originalParticipantsData = [];
 
-        function setWeeklyRange() {
-            const dateEl = document.getElementById('today-date');
+        // Вычисление текущей календарной недели по умолчанию
+        function getDefaultWeek() {
             const now = new Date();
             const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000) + (now.getTimezoneOffset() * 60000));
-            
             const currentDayOfWeek = moscowTime.getDay(); 
             const currentHours = moscowTime.getHours();
             
-            let startDate = new Date(moscowTime);
-            let endDate = new Date(moscowTime);
-            
+            let referenceDate = new Date(moscowTime);
             if (currentDayOfWeek === 1 && currentHours < 19) {
-                endDate.setDate(moscowTime.getDate() - 1);
-                startDate.setDate(moscowTime.getDate() - 7);
-            } else {
-                endDate = moscowTime;
-                startDate.setDate(endDate.getDate() - 6);
+                referenceDate.setDate(moscowTime.getDate() - 1);
             }
+
+            const start = new Date(CONFIG.SEASON_START_DATE);
+            start.setHours(0, 0, 0, 0);
+            referenceDate.setHours(0, 0, 0, 0);
+
+            const diffMs = referenceDate.getTime() - start.getTime();
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            
+            return diffDays >= 0 ? Math.floor(diffDays / 7) + 1 : 1;
+        }
+
+        // Локальное хранилище ручных настроек для скриншотов
+        function getOverrides(week) {
+            try {
+                const data = localStorage.getItem(`tracker_overrides_w_${week}`);
+                return data ? JSON.parse(data) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveOverrides(week, overrides) {
+            try {
+                localStorage.setItem(`tracker_overrides_w_${week}`, JSON.stringify(overrides));
+            } catch (e) {
+                console.error("Не удалось сохранить изменения в localStorage", e);
+            }
+        }
+
+        // Переключение недели
+        function changeWeek(direction) {
+            const targetWeek = activeWeek + direction;
+            if (targetWeek < 1 || targetWeek > 52) return; // Ограничение диапазона года
+            activeWeek = targetWeek;
+            localStorage.setItem('selected_week_tracker', activeWeek);
+            fetchData();
+        }
+
+        // Сброс всех локальных ручных изменений на текущей неделе
+        function resetWeekOverrides() {
+            localStorage.removeItem(`tracker_overrides_w_${activeWeek}`);
+            render(originalParticipantsData);
+        }
+
+        // Интерактивное переключение статуса дня (активен / отдых) по клику
+        window.toggleDay = function(name, dayIndex) {
+            const overrides = getOverrides(activeWeek);
+            const p = originalParticipantsData.find(u => u.name === name);
+            if (!p) return;
+            
+            const currentOverride = overrides[name] || {};
+            const currentData = currentOverride.data !== undefined 
+                ? [...currentOverride.data] 
+                : [...(Array.isArray(p.data) ? p.data : [0,0,0,0,0,0,0])];
+                
+            currentData[dayIndex] = currentData[dayIndex] ? 0 : 1;
+            
+            currentOverride.data = currentData;
+            overrides[name] = currentOverride;
+            saveOverrides(activeWeek, overrides);
+            
+            render(originalParticipantsData);
+        };
+
+        // Интерактивное редактирование количества огоньков
+        window.updateStreak = function(name, element) {
+            let val = parseInt(element.innerText.trim(), 10);
+            if (isNaN(val) || val < 0) val = 0;
+            element.innerText = val; 
+            
+            const overrides = getOverrides(activeWeek);
+            const currentOverride = overrides[name] || {};
+            currentOverride.streak = val;
+            overrides[name] = currentOverride;
+            saveOverrides(activeWeek, overrides);
+            
+            render(originalParticipantsData);
+        };
+
+        window.checkEnter = function(event, element) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                element.blur();
+            }
+        };
+
+        function setWeeklyRange() {
+            const dateEl = document.getElementById('today-date');
+            const seasonStart = new Date(CONFIG.SEASON_START_DATE);
+            
+            // Динамический расчёт диапазона на основе активной выбранной недели
+            const startDate = new Date(seasonStart.getTime() + (activeWeek - 1) * 7 * 24 * 60 * 60 * 1000);
+            const endDate = new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000);
             
             const monthNames = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
             
@@ -745,21 +865,6 @@
                     ? `${startDay} - ${endDay} ${startMonth}`
                     : `${startDay} ${startMonth} - ${endDay} ${endMonth}`;
             }
-
-            calculateCurrentWeek(endDate);
-        }
-
-        function calculateCurrentWeek(currentTime) {
-            const start = new Date(CONFIG.SEASON_START_DATE);
-            start.setHours(0, 0, 0, 0);
-
-            const today = new Date(currentTime);
-            today.setHours(0, 0, 0, 0);
-
-            const diffMs = today.getTime() - start.getTime();
-            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-            
-            currentComputedWeek = diffDays >= 0 ? Math.floor(diffDays / 7) + 1 : 1;
         }
 
         async function fetchData() {
@@ -769,20 +874,21 @@
             setWeeklyRange();
 
             try {
-                const response = await fetch(`${CONFIG.SCRIPT_URL}?week=${currentComputedWeek}`);
+                const response = await fetch(`${CONFIG.SCRIPT_URL}?week=${activeWeek}`);
                 if (!response.ok) throw new Error("Сетевая ошибка запроса");
                 
                 const rawResult = await response.json();
                 debugJsonEl.textContent = JSON.stringify(rawResult, null, 2);
                 
                 if (rawResult && rawResult.success && Array.isArray(rawResult.data)) {
-                    render(rawResult.data);
-                    calculateTeamStats(rawResult.data);
+                    originalParticipantsData = rawResult.data;
+                    render(originalParticipantsData);
+                    calculateTeamStats();
                     
                     statusEl.innerHTML = `
                         <span class="status-live-pill">
                             <span class="status-dot-pulse bg-emerald-500"></span>
-                            <span class="text-emerald-700">Обновлено LIVE</span>
+                            <span class="text-emerald-700 font-bold">Неделя ${activeWeek} • Live</span>
                         </span>
                     `;
                 } else {
@@ -793,7 +899,9 @@
                             <span class="text-amber-700">Ошибка структуры данных</span>
                         </span>
                     `;
-                    renderDemo();
+                    originalParticipantsData = getDemoData();
+                    render(originalParticipantsData);
+                    calculateTeamStats();
                 }
             } catch (error) {
                 console.error("Ошибка при получении данных:", error);
@@ -801,21 +909,22 @@
                 statusEl.innerHTML = `
                     <span class="status-live-pill">
                         <span class="status-dot-pulse bg-amber-500"></span>
-                        <span class="text-amber-700">Офлайн режим</span>
+                        <span class="text-amber-700">Офлайн режим (Демо)</span>
                     </span>
                 `;
-                renderDemo();
+                originalParticipantsData = getDemoData();
+                render(originalParticipantsData);
+                calculateTeamStats();
             } finally {
                 if (containerEl) containerEl.classList.remove('opacity-0');
             }
         }
 
-        // Вычисление и показ глобальной недельной статы
-        function calculateTeamStats(participants) {
+        function calculateTeamStats() {
             const statBubble = document.getElementById('total-workouts-stat');
             const combinedTextEl = document.getElementById('stat-combined-text');
             if (statBubble && combinedTextEl) {
-                combinedTextEl.textContent = `${currentComputedWeek} НЕДЕЛЯ`;
+                combinedTextEl.textContent = `${activeWeek} НЕДЕЛЯ`;
                 statBubble.style.display = 'inline-flex';
             }
         }
@@ -827,29 +936,48 @@
                 return;
             }
 
+            // Получаем сохраненные изменения для этой недели
+            const overrides = getOverrides(activeWeek);
+
+            // Накладываем локальные ручные изменения на оригинальные данные и сортируем
             const sorted = participants
                 .map(p => {
+                    const override = overrides[p.name] || {};
+                    const data = override.data !== undefined 
+                        ? override.data 
+                        : (Array.isArray(p.data) ? p.data : [0,0,0,0,0,0,0]);
+                    const streak = override.streak !== undefined 
+                        ? override.streak 
+                        : (parseInt(p.streak, 10) || 0);
+                    const total = data.reduce((a, b) => a + b, 0);
+                    
                     return {
                         ...p,
-                        safeData: Array.isArray(p.data) ? p.data : [0,0,0,0,0,0,0],
-                        total: Array.isArray(p.data) ? p.data.reduce((a, b) => a + b, 0) : 0,
-                        streak: parseInt(p.streak, 10) || 0
+                        safeData: data,
+                        streak: streak,
+                        total: total
                     };
                 })
                 .sort((a, b) => b.total - a.total);
 
             container.innerHTML = sorted.map((p, i) => {
                 const rank = i + 1;
-                const rings = p.safeData.map(a => `<div class="day-ring ${a ? 'active' : ''}"></div>`).join('');
+                
+                // Рендерим дни как кликабельные кнопки для быстрого переключения в заготовке скриншота
+                const rings = p.safeData.map((a, dIndex) => 
+                    `<div class="day-ring ${a ? 'active' : ''}" onclick="toggleDay('${p.name}', ${dIndex})" title="Переключить день ${dIndex+1}"></div>`
+                ).join('');
+                
                 const isInactive = p.streak === 0;
                 
+                // Рендерим огонёк со встроенным contenteditable для редактирования цифры на лету
                 const streakHtml = `
-                    <span class="streak-badge ${isInactive ? 'inactive' : ''}" title="Ударный режим: ${p.streak} нед.">
+                    <span class="streak-badge ${isInactive ? 'inactive' : ''}" title="Редактировать ударную серию">
                         <svg width="13" height="15" viewBox="0 0 24 24" stroke="none" stroke-linecap="round" stroke-linejoin="round">
                             <path class="flame-outer" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
                             <path class="flame-inner" d="M12 11c-.5.8-1 1.6-1 2.3a1 1 0 0 0 2 0c0-.7-.5-1.5-1-2.3z"></path>
                         </svg>
-                        <span>${p.streak}</span>
+                        <span class="streak-badge-value" contenteditable="true" onblur="updateStreak('${p.name}', this)" onkeydown="checkEnter(event, this)">${p.streak}</span>
                     </span>`;
                 
                 return `
@@ -870,6 +998,16 @@
             }).join('');
         }
 
+        function getDemoData() {
+            return [
+                { name: "Бодянчук Виталий (Демо)", data: [0, 1, 0, 1, 1, 1, 1], streak: 1 },
+                { name: "Мурадян Акоп (Демо)", data: [0, 1, 1, 0, 1, 1, 1], streak: 5 },
+                { name: "Халитов Михаил (Демо)", data: [0, 1, 1, 1, 1, 1, 1], streak: 2 },
+                { name: "Волк-Леванович Илья (Демо)", data: [0, 1, 0, 1, 0, 1, 0], streak: 0 },
+                { name: "Толстоноженко Александр (Демо)", data: [0, 1, 1, 0, 1, 0, 0], streak: 0 }
+            ];
+        }
+
         // Превосходный экспорт в PNG в строгой пропорции 4:3
         async function exportToPng() {
             const originalElement = document.getElementById('capture-target');
@@ -880,11 +1018,16 @@
             const clone = originalElement.cloneNode(true);
             sandboxMirror.appendChild(clone);
             
-            // 2. Делаем снимок через html2canvas с повышенным DPI (scale: 2) для сочности и четкости букв
+            // 2. Гарантированно скрываем кнопку сброса на рендерируемом холсте
+            const cloneResetBtn = clone.querySelector('#reset-overrides-btn');
+            if (cloneResetBtn) {
+                cloneResetBtn.style.display = 'none';
+            }
+            
+            // 3. Делаем снимок через html2canvas с повышенным DPI (scale: 2) для сочности и четкости букв
             try {
                 const sandbox = document.getElementById('export-canvas-sandbox');
                 
-                // Рендерим скрытый блок в картинку
                 const canvas = await html2canvas(sandbox, {
                     width: 1200,
                     height: 900,
@@ -894,9 +1037,9 @@
                     logging: false
                 });
 
-                // 3. Создаем ссылку на скачивание готовой PNG карточки
+                // 4. Создаем ссылку на скачивание готовой PNG карточки
                 const link = document.createElement('a');
-                link.download = `Fitness-Quarter-Week-${currentComputedWeek}.png`;
+                link.download = `Fitness-Quarter-Week-${activeWeek}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             } catch (err) {
@@ -907,22 +1050,14 @@
             }
         }
 
-        function renderDemo() {
-            const demoData = [
-                { name: "Бодянчук Виталий (Демо)", data: [0, 1, 0, 1, 1, 1, 1], streak: 1 },
-                { name: "Мурадян Акоп (Демо)", data: [0, 1, 1, 0, 1, 1, 1], streak: 5 },
-                { name: "Халитов Михаил (Демо)", data: [0, 1, 1, 1, 1, 1, 1], streak: 2 },
-                { name: "Волк-Леванович Илья (Демо)", data: [0, 1, 0, 1, 0, 1, 0], streak: 0 },
-                { name: "Толстоноженко Александр (Демо)", data: [0, 1, 1, 0, 1, 0, 0], streak: 0 }
-            ];
-            render(demoData);
-            calculateTeamStats(demoData);
-        }
-
         function toggleDebug() {
             const panel = document.getElementById('debug-panel');
             panel.classList.toggle('hidden');
         }
+
+        // Навешиваем дефолтное состояние при запуске
+        const storedWeek = localStorage.getItem('selected_week_tracker');
+        activeWeek = storedWeek ? parseInt(storedWeek, 10) : getDefaultWeek();
 
         window.onload = fetchData;
     </script>
