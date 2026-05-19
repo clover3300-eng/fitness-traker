@@ -15,9 +15,10 @@
             --text-main: #1D1D1D;
             --text-muted: #666362;
             --accent: #708A74; 
-            --accent-soft: #E8E2D9;
+            --accent-soft: rgba(112, 138, 116, 0.18); /* Мягкий шалфейный цвет для неактивных дней */
             --border: #E5E0D8;
-            --active-day: #708A74; 
+            --active-day: #93A896; /* Мягкий светлый пастельно-шалфейный для тренировок */
+            --goal-reached: #D97757; /* Благородный терракотовый цвет при достижении цели >= 5 */
             --status-ok: #8A8785; 
             --streak-fire: #E87B4A; /* Цвет active огонька */
             --streak-inactive: #C4C2BC; /* Цвет inactive огонька */
@@ -71,12 +72,15 @@
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         .anim-pulse { animation: pulse 2s infinite; }
 
-        /* Идеальная пропорциональная сетка: колонка Итогов сжата до 60px */
-        .leaderboard-header {
+        /* Идеальная пропорциональная сетка: колонка Итогов сжата до 60px, активность расширена до 160px */
+        .leaderboard-header, .leaderboard-card, .table-subheader {
             display: grid;
-            grid-template-columns: 24px 1fr 130px 60px;
+            grid-template-columns: 24px 1fr 160px 60px;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+        }
+
+        .leaderboard-header {
             padding: 10px 12px;
             margin-bottom: 16px;
             background: rgba(229, 224, 216, 0.35);
@@ -98,10 +102,6 @@
 
         /* Текстовые подзаголовки столбцов таблицы */
         .table-subheader {
-            display: grid;
-            grid-template-columns: 24px 1fr 130px 60px;
-            align-items: center;
-            gap: 8px;
             padding: 0 12px 10px 12px;
             font-size: 10px;
             font-weight: 700;
@@ -113,14 +113,14 @@
 
         .day-labels {
             display: flex;
-            gap: 4px;
+            gap: 8px; 
             justify-content: center;
             width: 100%;
             padding: 0 10px;
         }
 
         .day-label-item {
-            width: 7px;
+            width: 12px; 
             text-align: center;
             font-size: 8px;
             color: #8A8785;
@@ -162,7 +162,7 @@
             display: inline-block;
         }
 
-        /* Кристально-чистый контурный бадж цели: только кубок и 5/7 */
+        /* Кристально-чистый контурный бадж цели: только огонёк и 5/7 */
         .badge-goal-revolutionary {
             background-color: rgba(255, 255, 255, 0.7); 
             color: #4A4D4A;
@@ -179,7 +179,7 @@
         .goal-label-icon {
             display: flex;
             align-items: center;
-            color: #555251;
+            color: var(--streak-fire);
         }
 
         .goal-numbers {
@@ -234,11 +234,7 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 8px 12px;
-            display: grid;
-            /* Точно такая же симметричная сетка с итогами на 60px */
-            grid-template-columns: 24px 1fr 130px 60px;
-            align-items: center;
-            gap: 8px;
+            margin-bottom: 6px;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
@@ -349,27 +345,28 @@
             stroke: none;
         }
 
-        /* Блок активностей с двухсторонними границами | | (ширина оптимизирована до 130px) */
+        /* Блок активностей с двухсторонними границами | | */
         .rings-container {
             display: flex;
-            gap: 4px; 
+            gap: 8px; 
             flex-shrink: 0;
             justify-content: center; 
             border-left: 1px solid rgba(29, 29, 29, 0.09); 
             border-right: 1px solid rgba(29, 29, 29, 0.09); 
-            padding-left: 10px; 
-            padding-right: 10px; 
+            padding-left: 12px; 
+            padding-right: 12px; 
             margin: 0; 
-            height: 14px; 
+            height: 24px; 
             align-items: center;
             transition: all 0.2s ease;
         }
 
+        /* Крупные квадраты активности */
         .day-ring {
-            width: 7px;
-            height: 7px;
-            border-radius: 1.5px;
-            background-color: var(--accent-soft);
+            width: 12px; 
+            height: 12px;
+            border-radius: 3px;
+            background-color: var(--accent-soft); /* Мягкий шалфейный */
             transition: all 0.15s ease;
             cursor: pointer;
         }
@@ -379,8 +376,8 @@
         }
 
         .day-ring.active { 
-            background-color: var(--active-day); 
-            box-shadow: 0 1px 2px rgba(112, 138, 116, 0.2); 
+            background-color: var(--active-day); /* Насыщенный пастельно-шалфейный */
+            box-shadow: 0 1px 3px rgba(112, 138, 116, 0.2); 
         }
 
         .score-box { 
@@ -391,11 +388,26 @@
             gap: 3px;
             padding-right: 4px; 
         }
-        .score-value { font-size: 13px; font-weight: 700; }
-        .score-total { font-size: 10px; color: var(--text-muted); opacity: 0.6; }
+        
+        .score-value { 
+            font-size: 16px; /* Увеличено с 13px до 16px */
+            font-weight: 700; 
+            transition: color 0.2s ease;
+        }
+        
+        /* Класс окрашивания итогов при достижении цели >= 5 */
+        .score-value.reached-target {
+            color: var(--goal-reached);
+        }
+        
+        .score-total { 
+            font-size: 11px; /* Увеличено с 10px до 11px для баланса */
+            color: var(--text-muted); 
+            opacity: 0.6; 
+        }
 
         /* Увеличенная ширина контейнера для просторного премиального вида */
-        .compact-container { max-width: 620px; margin: 0 auto; }
+        .compact-container { max-width: 650px; margin: 0 auto; }
 
         /* Легенда */
         .table-footnote {
@@ -430,37 +442,20 @@
             display: inline-block;
         }
 
+        /* Премиальный блок недели в легенде */
         .footnote-days-badge {
             display: flex;
             align-items: center;
-            gap: 2px;
             background-color: rgba(229, 224, 216, 0.3);
-            padding: 3px 6px;
+            padding: 4px 10px;
             border-radius: 6px;
             border: 1px solid rgba(229, 224, 216, 0.6);
-        }
-
-        .footnote-days-label {
-            font-size: 9px;
-            text-transform: uppercase;
-            font-weight: 500;
-            color: var(--text-muted);
-            margin-right: 4px;
-            opacity: 0.8;
-        }
-
-        .day-letter-box {
-            width: 14px;
-            height: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 8px;
             font-weight: 700;
-            border-radius: 3px;
-            background-color: var(--bg-main);
+            letter-spacing: 0.05em;
             color: var(--text-muted);
-            border: 1px solid var(--border);
+            text-transform: uppercase;
+            font-size: 9px;
+            white-space: nowrap;
         }
 
         /* Системный LIVE бадж */
@@ -550,27 +545,27 @@
         
         @media (max-width: 440px) {
             .leaderboard-header {
-                grid-template-columns: 15px 1.25fr 105px 50px; 
+                grid-template-columns: 15px 1fr 150px 50px; 
                 gap: 4px;
             }
             .leaderboard-card { 
-                grid-template-columns: 15px 1.25fr 105px 50px; 
+                grid-template-columns: 15px 1fr 150px 50px; 
                 gap: 4px;
             }
             .table-subheader {
-                grid-template-columns: 15px 1.25fr 105px 50px;
+                grid-template-columns: 15px 1fr 150px 50px;
                 gap: 4px;
             }
             .rings-container {
-                padding-left: 6px;
-                padding-right: 6px; 
+                padding-left: 4px;
+                padding-right: 4px; 
                 margin-left: 0;
-                gap: 3px;
+                gap: 5px;
             }
             .day-labels {
-                gap: 3px;
-                padding-left: 6px;
-                padding-right: 6px;
+                gap: 5px;
+                padding-left: 4px;
+                padding-right: 4px;
             }
             .header-date-container {
                 padding-left: 6px;
@@ -635,8 +630,12 @@
                 <!-- Революционный бадж индивидуальной спортивной цели на всю ширину колонки -->
                 <div class="header-section-label w-full justify-end">
                     <div class="header-badge-capsule badge-goal-revolutionary" title="Спортивная цель на текущую неделю">
+                        <!-- Иконка кубка заменена на наш эстетичный SVG-огонёк -->
                         <div class="goal-label-icon">
-                            <i class="fa-solid fa-trophy text-[9px] text-amber-500"></i>
+                            <svg width="11" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill="var(--streak-fire)" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+                                <path fill="#FFD074" d="M12 11c-.5.8-1 1.6-1 2.3a1 1 0 0 0 2 0c0-.7-.5-1.5-1-2.3z"></path>
+                            </svg>
                         </div>
                         <span class="goal-numbers">
                             <span class="goal-number-accent">5</span>
@@ -679,23 +678,13 @@
                         <span class="legend-dot" style="background-color: var(--active-day);"></span> Тренировка
                     </span>
                     <span class="legend-item">
-                        <span class="legend-dot" style="background-color: var(--accent-soft);"></span> Отдых
+                        <span class="legend-dot" style="background-color: rgba(112, 138, 116, 0.25);"></span> Отдых
                     </span>
-                    <!-- Кнопка интерактивного сброса ручных изменений -->
-                    <button id="reset-overrides-btn" onclick="resetWeekOverrides()" class="text-[9px] uppercase tracking-wider text-amber-700/60 hover:text-amber-800 transition-all font-semibold ml-4" title="Сбросить все ручные изменения дней и огоньков для этой недели">
-                        <i class="fa-solid fa-arrow-rotate-left mr-1"></i> Сбросить изменения
-                    </button>
                 </div>
                 
-                <div class="footnote-days-badge">
-                    <span class="footnote-days-label">Дни недели:</span>
-                    <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">П</div>
-                    <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">В</div>
-                    <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">С</div>
-                    <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">Ч</div>
-                    <div class="day-letter-box" style="background-color: var(--active-day); color: #ffffff; border-color: var(--active-day);">П</div>
-                    <div class="day-letter-box" style="background-color: var(--accent-soft); opacity: 0.9;">С</div>
-                    <div class="day-letter-box" style="background-color: var(--accent-soft); opacity: 0.9;">В</div>
+                <!-- Красивый динамический бадж недели в легенде -->
+                <div id="dynamic-weeks-badge" class="footnote-days-badge">
+                    НЕДЕЛЯ 1 · 11–17 МАЯ 2026
                 </div>
             </div>
 
@@ -708,6 +697,13 @@
                 <i class="fa-solid fa-camera"></i>
                 <span>Скачать карточку (4:3 PNG)</span>
             </button>
+
+            <!-- Техническая кнопка сброса изменений вынесена за пределы таблицы -->
+            <div class="flex items-center gap-4">
+                <button id="reset-overrides-btn" onclick="resetWeekOverrides()" class="text-[10px] uppercase tracking-wider text-amber-700/60 hover:text-amber-800 transition-all font-bold" title="Сбросить все ручные изменения дней и огоньков для этой недели">
+                    <i class="fa-solid fa-arrow-rotate-left mr-1"></i> Сбросить изменения недели
+                </button>
+            </div>
 
             <div id="status" class="transition-all duration-300">
                 <span class="status-live-pill">
@@ -791,7 +787,7 @@
         // Переключение недели
         function changeWeek(direction) {
             const targetWeek = activeWeek + direction;
-            if (targetWeek < 1 || targetWeek > 52) return; // Ограничение диапазона года
+            if (targetWeek < 1 || targetWeek > 52) return; 
             activeWeek = targetWeek;
             localStorage.setItem('selected_week_tracker', activeWeek);
             fetchData();
@@ -847,23 +843,37 @@
 
         function setWeeklyRange() {
             const dateEl = document.getElementById('today-date');
+            const legendWeekEl = document.getElementById('dynamic-weeks-badge');
             const seasonStart = new Date(CONFIG.SEASON_START_DATE);
             
-            // Динамический расчёт диапазона на основе активной выбранной недели
             const startDate = new Date(seasonStart.getTime() + (activeWeek - 1) * 7 * 24 * 60 * 60 * 1000);
             const endDate = new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000);
             
             const monthNames = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+            const fullMonthNames = ["ЯНВАРЯ", "ФЕВРАЛЯ", "МАРТА", "АПРЕЛЯ", "МАЯ", "ИЮНЯ", "ИЮЛЯ", "АВГУСТА", "СЕНТЯБРЯ", "ОКТЯБРЯ", "НОЯБРЯ", "ДЕКАБРЯ"];
             
             const startDay = startDate.getDate();
             const startMonth = monthNames[startDate.getMonth()];
             const endDay = endDate.getDate();
             const endMonth = monthNames[endDate.getMonth()];
             
+            const startMonthFull = fullMonthNames[startDate.getMonth()];
+            const endMonthFull = fullMonthNames[endDate.getMonth()];
+            const endYear = endDate.getFullYear();
+            
             if (dateEl) {
                 dateEl.textContent = startMonth === endMonth 
                     ? `${startDay} - ${endDay} ${startMonth}`
                     : `${startDay} ${startMonth} - ${endDay} ${endMonth}`;
+            }
+
+            // Рендерим красивый бадж периода в легенде
+            if (legendWeekEl) {
+                if (startDate.getMonth() === endDate.getMonth()) {
+                    legendWeekEl.textContent = `НЕДЕЛЯ ${activeWeek} · ${startDay}–${endDay} ${startMonthFull} ${endYear}`;
+                } else {
+                    legendWeekEl.textContent = `НЕДЕЛЯ ${activeWeek} · ${startDay} ${startMonthFull} – ${endDay} ${endMonthFull} ${endYear}`;
+                }
             }
         }
 
@@ -936,10 +946,8 @@
                 return;
             }
 
-            // Получаем сохраненные изменения для этой недели
             const overrides = getOverrides(activeWeek);
 
-            // Накладываем локальные ручные изменения на оригинальные данные и сортируем
             const sorted = participants
                 .map(p => {
                     const override = overrides[p.name] || {};
@@ -963,22 +971,24 @@
             container.innerHTML = sorted.map((p, i) => {
                 const rank = i + 1;
                 
-                // Рендерим дни как кликабельные кнопки для быстрого переключения в заготовке скриншота
+                // Рендерим дни с крупными квадратами и новыми отступами
                 const rings = p.safeData.map((a, dIndex) => 
                     `<div class="day-ring ${a ? 'active' : ''}" onclick="toggleDay('${p.name}', ${dIndex})" title="Переключить день ${dIndex+1}"></div>`
                 ).join('');
                 
                 const isInactive = p.streak === 0;
                 
-                // Рендерим огонёк со встроенным contenteditable для редактирования цифры на лету
                 const streakHtml = `
-                    <span class="streak-badge ${isInactive ? 'inactive' : ''}" title="Редактировать ударную серию">
+                    <span class="streak-badge ${isInactive ? 'inactive' : ''}" title="Редактировать серию">
                         <svg width="13" height="15" viewBox="0 0 24 24" stroke="none" stroke-linecap="round" stroke-linejoin="round">
                             <path class="flame-outer" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
                             <path class="flame-inner" d="M12 11c-.5.8-1 1.6-1 2.3a1 1 0 0 0 2 0c0-.7-.5-1.5-1-2.3z"></path>
                         </svg>
                         <span class="streak-badge-value" contenteditable="true" onblur="updateStreak('${p.name}', this)" onkeydown="checkEnter(event, this)">${p.streak}</span>
                     </span>`;
+                
+                // Интеллектуальное окрашивание в терракотовый при total >= 5
+                const isTargetReached = p.total >= 5;
                 
                 return `
                     <div class="leaderboard-card rank-${rank}">
@@ -990,7 +1000,7 @@
                         <div class="rings-container">${rings}</div>
                         <div class="flex justify-end items-center">
                             <div class="score-box">
-                                <span class="score-value">${p.total}</span><span class="score-total">/7</span>
+                                <span class="score-value ${isTargetReached ? 'reached-target' : ''}">${p.total}</span><span class="score-total">/7</span>
                             </div>
                         </div>
                     </div>
@@ -1018,26 +1028,20 @@
             const clone = originalElement.cloneNode(true);
             sandboxMirror.appendChild(clone);
             
-            // 2. Гарантированно скрываем кнопку сброса на рендерируемом холсте
-            const cloneResetBtn = clone.querySelector('#reset-overrides-btn');
-            if (cloneResetBtn) {
-                cloneResetBtn.style.display = 'none';
-            }
-            
-            // 3. Делаем снимок через html2canvas с повышенным DPI (scale: 2) для сочности и четкости букв
+            // 2. Делаем снимок через html2canvas с повышенным DPI (scale: 2) для сочности и четкости букв
             try {
                 const sandbox = document.getElementById('export-canvas-sandbox');
                 
                 const canvas = await html2canvas(sandbox, {
                     width: 1200,
                     height: 900,
-                    scale: 2, // 2x плотность пикселей
-                    backgroundColor: '#F9F6F1', // Фирменный благородный бежевый фон
+                    scale: 2, 
+                    backgroundColor: '#F9F6F1', 
                     useCORS: true,
                     logging: false
                 });
 
-                // 4. Создаем ссылку на скачивание готовой PNG карточки
+                // 3. Создаем ссылку на скачивание готовой PNG карточки
                 const link = document.createElement('a');
                 link.download = `Fitness-Quarter-Week-${activeWeek}.png`;
                 link.href = canvas.toDataURL('image/png');
@@ -1045,7 +1049,6 @@
             } catch (err) {
                 console.error("Ошибка при экспорте изображения:", err);
             } finally {
-                // Очищаем клон из памяти
                 sandboxMirror.innerHTML = '';
             }
         }
