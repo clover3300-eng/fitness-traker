@@ -3,426 +3,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fitness Quarter - Live Leaderboard</title>
+    <title>Fitness Квартал — Трекер</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link class="js-fa-style" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Подключаем html2canvas для генерации идеальных скриншотов на лету -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
-            --bg-main: #F9F6F1; 
-            --card-bg: #ffffff; 
-            --text-main: #1D1D1D;
-            --text-muted: #666362;
-            --accent: #708A74; 
-            --accent-soft: rgba(112, 138, 116, 0.18); /* Мягкий шалфейный цвет для неактивных дней */
-            --border: #E5E0D8;
-            --active-day: #93A896; /* Мягкий светлый пастельно-шалфейный для тренировок */
-            --goal-reached: #D97757; /* Благородный терракотовый цвет при достижении цели >= 5 */
-            --status-ok: #8A8785; 
-            --streak-fire: #E87B4A; /* Цвет active огонька */
-            --streak-inactive: #C4C2BC; /* Цвет inactive огонька */
+            /* ═══ БАЗОВАЯ ПАЛИТРА ═══ */
+            --bg-page: #F5F1E9;
+            --bg-shot: #FAF7F1;
+            --card-bg: #FFFFFF;
+            --card-bg-alt: #FCFAF5;
+            --text-primary: #1A1A1A;
+            --text-secondary: #5A5854;
+            --text-tertiary: #8A8784;
+            --border-soft: #EAE3D5;
+            --border-medium: #D4CDBE;
+            --neutral-bg: #EFE9DE;
+
+            /* ═══ ОРАНЖЕВЫЙ (только для критических акцентов) ═══ */
+            --accent-warm: #D97757;
+            --accent-warm-soft: rgba(217, 119, 87, 0.10);
+            --accent-warm-glow: rgba(217, 119, 87, 0.30);
+
+            /* ═══ ШАЛФЕЙНАЯ СИСТЕМА — 3 ОТТЕНКА ═══ */
+            /* По умолчанию: средний "quiet luxury" */
+            --sage-bright: #708A74;
+            --sage-soft: #8FA890;
+            --sage-deep: #5C7060;
+            
+            /* Активный оттенок для тренировок — меняется через JS */
+            --training-color: var(--sage-soft);
+            --training-color-glow: rgba(143, 168, 144, 0.25);
+            
+            /* Acccent-cool для целей и системных элементов (всегда средний) */
+            --accent-cool: #708A74;
+            --accent-cool-soft: rgba(112, 138, 116, 0.10);
+
+            /* ═══ ПРИГЛУШЁННЫЕ МЕДАЛИ ═══ */
+            --rank-1: #B8A05D;  /* Матовое золото */
+            --rank-2: #A8A8A4;  /* Графитовое серебро */
+            --rank-3: #A88466;  /* Терракотовая бронза */
         }
+
+        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
         body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+            font-feature-settings: "ss01", "cv01", "tnum";
         }
 
-        /* Премиальная стеклянная обертка для всей таблицы */
-        .glass-wrapper {
-            background: rgba(255, 255, 255, 0.45);
-            border: 1px solid rgba(229, 224, 216, 0.8);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(29, 29, 29, 0.03);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+        /* ═══════════════════════════════════════════════
+           ЗОНА СКРИНШОТА
+           ═══════════════════════════════════════════════ */
+        .screenshot-zone {
+            background: var(--bg-shot);
+            border-radius: 22px;
+            padding: 20px 20px 18px 20px;
+            max-width: 560px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow:
+                0 1px 2px rgba(0,0,0,0.02),
+                0 8px 32px -8px rgba(58, 51, 36, 0.08);
         }
 
-        .section-header {
-            margin-bottom: 20px;
-            padding: 0 4px;
+        /* ═══ ШАПКА: бренд слева, крупный № справа ═══ */
+        .shot-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-soft);
         }
 
-        .section-title {
+        .brand-block {
+            display: flex;
+            align-items: center;
+        }
+
+        .brand-title {
             font-size: 15px;
             letter-spacing: -0.01em;
-            color: var(--text-main);
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 6px;
-            white-space: nowrap;
+            line-height: 1;
         }
 
-        .section-title i {
-            font-size: 12px;
-            color: var(--active-day);
+        .brand-bolt {
+            width: 16px;
+            height: 16px;
+            color: var(--accent-cool);
+            flex-shrink: 0;
+            opacity: 0.85;
+        }
+
+        .brand-light {
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+
+        .brand-bold {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+
+        /* Крупный номер недели справа */
+        .week-display {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            line-height: 1;
+        }
+
+        .week-display-hash {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+
+        .week-display-num {
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 0.85;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.05em;
+        }
+
+        /* ═══ МЕТА-ПОЛОСА ═══ */
+        .meta-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding: 9px 14px;
+            background: var(--neutral-bg);
+            border-radius: 10px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.005em;
+            gap: 10px;
+        }
+
+        .meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .meta-icon {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
             opacity: 0.9;
         }
 
-        .section-title span { font-weight: 400; color: var(--text-muted); }
-        .section-title strong { font-weight: 700; color: var(--text-main); }
+        .meta-item .meta-icon.calendar { color: var(--accent-warm); }
+        .meta-item .meta-icon.target { color: var(--accent-cool); }
 
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .anim-pulse { animation: pulse 2s infinite; }
-
-        /* Идеальная пропорциональная сетка: колонка Итогов сжата до 60px, активность расширена до 160px */
-        .leaderboard-header, .leaderboard-card, .table-subheader {
-            display: grid;
-            grid-template-columns: 24px 1fr 160px 60px;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .leaderboard-header {
-            padding: 10px 12px;
-            margin-bottom: 16px;
-            background: rgba(229, 224, 216, 0.35);
-            border: 1px solid rgba(229, 224, 216, 0.7);
-            border-radius: 12px;
-            user-select: none;
-        }
-
-        /* Гармонизированная метка секции участников */
-        .header-section-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #555251; 
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            letter-spacing: -0.01em;
-        }
-
-        /* Текстовые подзаголовки столбцов таблицы */
-        .table-subheader {
-            padding: 0 12px 10px 12px;
-            font-size: 10px;
-            font-weight: 700;
-            color: #8A8785;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            user-select: none;
-        }
-
-        .day-labels {
-            display: flex;
-            gap: 8px; 
-            justify-content: center;
-            width: 100%;
-            padding: 0 10px;
-        }
-
-        .day-label-item {
-            width: 12px; 
-            text-align: center;
-            font-size: 8px;
-            color: #8A8785;
-            font-weight: 700;
-        }
-
-        /* Единый ДНК-класс для баджей */
-        .header-badge-capsule {
-            display: inline-flex;
-            align-items: center;
-            height: 23px;
-            border-radius: 100px;
-            padding: 0 10px;
-            font-size: 9px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            line-height: 1;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-            -webkit-font-smoothing: antialiased;
-            transition: all 0.2s ease;
-        }
-
-        /* Бадж недели: воздушный, светлый, с деликатным зеленым акцентом-точкой */
-        .badge-week-revolutionary {
-            background-color: rgba(255, 255, 255, 0.7);
-            color: #4A4D4A;
-            border: 1px solid rgba(112, 138, 116, 0.3);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-            gap: 5px;
-        }
-
-        /* Маленький живой индикатор текущей недели */
-        .week-indicator-dot {
-            width: 5px;
-            height: 5px;
-            background-color: var(--accent);
+        .meta-divider-dot {
+            width: 3px; height: 3px;
+            background: var(--text-tertiary);
             border-radius: 50%;
-            display: inline-block;
+            opacity: 0.4;
+            flex-shrink: 0;
         }
 
-        /* Кристально-чистый контурный бадж цели: только огонёк и 5/7 */
-        .badge-goal-revolutionary {
-            background-color: rgba(255, 255, 255, 0.7); 
-            color: #4A4D4A;
-            border: 1px solid rgba(112, 138, 116, 0.3); 
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02); 
-            height: 23px;
-            width: 100%; 
-            padding: 0 12px; 
-            display: flex;
-            justify-content: space-between; 
-            align-items: center;
-        }
-
-        .goal-label-icon {
-            display: flex;
-            align-items: center;
-            color: var(--streak-fire);
-        }
-
-        .goal-numbers {
-            display: inline-flex;
-            align-items: center;
-            font-weight: 800;
-            letter-spacing: 0.01em;
-            gap: 2px; 
-        }
-
-        .goal-number-accent {
-            color: var(--text-main); 
-            font-size: 11px; 
-        }
-
-        .goal-number-muted {
-            color: var(--text-muted); 
-            font-size: 9px; 
-            font-weight: 500;
-            opacity: 0.6;
-        }
-
-        /* Контейнер дат в шапке, идеально выверенный под разделители rings-container */
-        .header-date-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-left: 1px solid rgba(29, 29, 29, 0.09); 
-            border-right: 1px solid rgba(29, 29, 29, 0.09); 
-            padding-left: 10px;
-            padding-right: 10px; 
-            margin: 0; 
-            height: 14px;
-        }
-
-        /* Сбалансированный и мягкий текст дат недели */
-        .header-date-text {
-            font-size: 11px;
-            font-weight: 600; 
-            color: #555251; 
-            white-space: nowrap;
-            letter-spacing: -0.01em;
-        }
-
-        /* Эффект плавного появления строк при загрузке */
-        #tracks-container {
-            transition: opacity 0.3s ease-out;
-        }
-
-        .leaderboard-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-bottom: 6px;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        .leaderboard-card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(29, 29, 29, 0.03);
-        }
-
-        .rank-number {
-            font-size: 11px;
+        .meta-label {
+            color: var(--text-tertiary);
             font-weight: 600;
-            color: var(--text-muted);
         }
 
-        .rank-1 .rank-number { color: #B38E1B; }
-        .rank-2 .rank-number { color: #7D7D7D; }
-        .rank-3 .rank-number { color: #A67C52; }
-
-        .user-name-wrapper {
-            display: flex;
-            align-items: center;
-            flex-wrap: nowrap; 
-            gap: 4px; 
-            min-width: 0;
-            padding-right: 16px; 
+        .meta-value-highlight {
+            color: var(--accent-warm);
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
         }
 
-        .user-name {
-            font-size: 13px;
+        .meta-of {
+            color: var(--text-tertiary);
             font-weight: 500;
-            line-height: 1.2;
-            white-space: nowrap; 
-            flex-shrink: 1;
-            overflow: visible; 
-            padding-right: 1px;
         }
 
-        /* Огонёк ударного режима */
-        .streak-badge {
+        /* Мини dot-прогресс цели */
+        .goal-dots {
             display: inline-flex;
             align-items: center;
             gap: 3px;
-            font-size: 11px;
+            margin-left: 4px;
+        }
+
+        .goal-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--border-medium);
+            transition: background 0.2s;
+        }
+
+        .goal-dot.filled {
+            background: var(--accent-cool);
+        }
+
+        /* ═══ ЗАГОЛОВКИ КОЛОНОК ═══ */
+        .column-headers {
+            display: grid;
+            grid-template-columns: 22px 1fr 114px 50px;
+            gap: 8px;
+            padding: 0 10px 6px 10px;
+        }
+
+        .col-header-text {
+            font-size: 8px;
             font-weight: 700;
-            color: var(--streak-fire);
-            vertical-align: middle;
-            user-select: none;
-            flex-shrink: 0;
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
         }
 
-        .leaderboard-card:hover .streak-badge {
-            transform: scale(1.1);
-        }
+        .col-header-rank { text-align: center; }
+        .col-header-score { text-align: right; }
 
-        .streak-badge svg {
-            flex-shrink: 0;
-            transform-origin: bottom center;
-        }
-
-        .streak-badge .flame-outer {
-            fill: var(--streak-fire);
-            stroke: var(--streak-fire);
-            stroke-width: 0.5;
-            transition: fill 0.2s ease;
-        }
-
-        .streak-badge .flame-inner {
-            fill: #FFD074; 
-            transition: fill 0.2s ease, transform 0.2s ease;
-        }
-
-        .leaderboard-card:hover .streak-badge:not(.inactive) .flame-inner {
-            fill: #FFE3A8; 
-        }
-
-        /* Интерактивное редактирование огоньков прямо в таблице */
-        .streak-badge-value {
-            outline: none;
-            cursor: text;
-            min-width: 12px;
-            display: inline-block;
-            text-align: center;
-            border-radius: 3px;
-            padding: 0 2px;
-            transition: background-color 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        .streak-badge-value:hover, .streak-badge-value:focus {
-            background-color: rgba(232, 123, 74, 0.15);
-            box-shadow: 0 0 0 1px rgba(232, 123, 74, 0.25);
-        }
-
-        /* Неактивное состояние огонька */
-        .streak-badge.inactive {
-            color: var(--streak-inactive);
-            opacity: 0.5;
-        }
-
-        .streak-badge.inactive .flame-outer {
-            fill: none; 
-            stroke: var(--streak-inactive);
-            stroke-width: 2.2;
-        }
-
-        .streak-badge.inactive .flame-inner {
-            fill: none; 
-            stroke: none;
-        }
-
-        /* Блок активностей с двухсторонними границами | | */
-        .rings-container {
-            display: flex;
-            gap: 8px; 
-            flex-shrink: 0;
-            justify-content: center; 
-            border-left: 1px solid rgba(29, 29, 29, 0.09); 
-            border-right: 1px solid rgba(29, 29, 29, 0.09); 
-            padding-left: 12px; 
-            padding-right: 12px; 
-            margin: 0; 
-            height: 24px; 
-            align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        /* Крупные квадраты активности */
-        .day-ring {
-            width: 12px; 
-            height: 12px;
-            border-radius: 3px;
-            background-color: var(--accent-soft); /* Мягкий шалфейный */
-            transition: all 0.15s ease;
-            cursor: pointer;
-        }
-
-        .day-ring:hover {
-            transform: scale(1.3);
-        }
-
-        .day-ring.active { 
-            background-color: var(--active-day); /* Насыщенный пастельно-шалфейный */
-            box-shadow: 0 1px 3px rgba(112, 138, 116, 0.2); 
-        }
-
-        .score-box { 
-            text-align: right; 
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
+        .days-header-row {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
             gap: 3px;
-            padding-right: 4px; 
-        }
-        
-        .score-value { 
-            font-size: 16px; /* Увеличено с 13px до 16px */
-            font-weight: 700; 
-            transition: color 0.2s ease;
-        }
-        
-        /* Класс окрашивания итогов при достижении цели >= 5 */
-        .score-value.reached-target {
-            color: var(--goal-reached);
-        }
-        
-        .score-total { 
-            font-size: 11px; /* Увеличено с 10px до 11px для баланса */
-            color: var(--text-muted); 
-            opacity: 0.6; 
+            justify-items: center;
         }
 
-        /* Увеличенная ширина контейнера для просторного премиального вида */
-        .compact-container { max-width: 650px; margin: 0 auto; }
+        .day-letter-header {
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            letter-spacing: 0.04em;
+            line-height: 1;
+        }
 
-        /* Легенда */
-        .table-footnote {
-            margin-top: 20px;
-            padding-top: 12px;
-            border-top: 1px dashed var(--border);
+        .day-letter-header.weekend { opacity: 0.5; }
+
+        /* ═══ КАРТОЧКИ УЧАСТНИКОВ ═══ */
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .participant-card {
+            display: grid;
+            grid-template-columns: 22px 1fr 114px 50px;
+            gap: 8px;
+            align-items: center;
+            padding: 6px 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
+            min-height: 30px;
+            transition: all 0.15s ease;
+        }
+
+        .participant-card:hover {
+            border-color: var(--border-medium);
+            transform: translateX(1px);
+        }
+
+        .participant-card.row-even {
+            background: var(--card-bg-alt);
+        }
+
+        /* Ранг: приглушённые цвета медалей */
+        .rank-num {
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .rank-1 .rank-num { color: var(--rank-1); font-size: 14px; }
+        .rank-2 .rank-num { color: var(--rank-2); font-size: 14px; }
+        .rank-3 .rank-num { color: var(--rank-3); font-size: 14px; }
+
+        /* Имя и огонёк */
+        .name-cell {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .participant-name {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.015em;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+            flex-shrink: 1;
+            /* НЕ flex: 1 1 auto — имя занимает ровно столько, сколько нужно тексту */
+        }
+
+        /* Огонёк остаётся оранжевым — это семантически "горение" */
+        .streak-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            font-size: 10.5px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .streak-inline.active { color: var(--accent-warm); }
+        .streak-inline.inactive { color: var(--text-tertiary); opacity: 0.5; }
+
+        .streak-inline svg {
+            width: 10px;
+            height: 11px;
+            flex-shrink: 0;
+        }
+
+        .streak-inline.active .flame-body { fill: var(--accent-warm); }
+        .streak-inline.active .flame-core { fill: #FFD074; }
+        .streak-inline.inactive .flame-body {
+            fill: none;
+            stroke: var(--text-tertiary);
+            stroke-width: 1.6;
+        }
+        .streak-inline.inactive .flame-core { fill: none; }
+
+        /* ═══ ДНИ НЕДЕЛИ: ШАЛФЕЙНЫЕ КВАДРАТИКИ ═══ */
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            justify-items: center;
+            align-items: center;
+        }
+
+        .day-marker {
+            width: 11px;
+            height: 11px;
+            border-radius: 3px;
+            background: var(--border-soft);
+            position: relative;
+            transition: background 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        /* ГЛАВНОЕ ИЗМЕНЕНИЕ: тренировки теперь шалфейные */
+        .day-marker.active {
+            background: var(--training-color);
+            box-shadow:
+                inset 0 0 0 1px rgba(0,0,0,0.04),
+                0 1px 2px var(--training-color-glow);
+        }
+
+        .day-marker.weekend:not(.active) {
+            background: transparent;
+            border: 1px dashed var(--border-medium);
+        }
+
+        /* Счёт справа */
+        .score-cell {
+            display: flex;
+            align-items: baseline;
+            justify-content: flex-end;
+            gap: 2px;
+        }
+
+        .score-main {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.03em;
+        }
+
+        .score-target {
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            letter-spacing: 0.02em;
+        }
+
+        /* При выполнении цели — оранжевый остаётся (критический акцент успеха) */
+        .score-main.goal-met { color: var(--accent-warm); }
+        .score-target.goal-met { color: var(--training-color); }
+
+        /* ═══ ФУТЕР ЗОНЫ СКРИНШОТА ═══ */
+        .shot-footer {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-soft);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 10px;
-            color: var(--text-muted);
-            gap: 12px;
+            font-size: 9px;
+            color: var(--text-tertiary);
         }
 
-        .footnote-legend {
+        .footer-legend {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -435,634 +430,1451 @@
             font-weight: 500;
         }
 
-        .legend-dot {
-            width: 8px;
-            height: 8px;
+        .legend-swatch {
+            width: 8px; height: 8px;
             border-radius: 2px;
-            display: inline-block;
+            transition: background 0.25s ease;
         }
 
-        /* Премиальный блок недели в легенде */
-        .footnote-days-badge {
+        .swatch-active { background: var(--training-color); }
+        .swatch-rest { background: var(--border-soft); }
+        .swatch-weekend {
+            background: transparent;
+            border: 1px dashed var(--border-medium);
+        }
+
+        .footer-brand {
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            opacity: 0.7;
+        }
+
+        /* ═══════════════════════════════════════════════
+           ВНЕ ЗОНЫ СКРИНШОТА — ADMIN TOOLS
+           ═══════════════════════════════════════════════ */
+        .admin-toolbar {
+            max-width: 560px;
+            margin: 14px auto 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 0 4px;
+            flex-wrap: nowrap;
+        }
+
+        .toolbar-left {
             display: flex;
             align-items: center;
-            background-color: rgba(229, 224, 216, 0.3);
-            padding: 4px 10px;
-            border-radius: 6px;
-            border: 1px solid rgba(229, 224, 216, 0.6);
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-size: 9px;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .week-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px; height: 32px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-soft);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .week-nav-btn:hover:not(:disabled) {
+            border-color: var(--accent-warm);
+            color: var(--accent-warm);
+            transform: translateY(-1px);
+        }
+
+        .week-nav-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .week-nav-current {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            height: 32px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-soft);
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
             white-space: nowrap;
         }
 
-        /* Системный LIVE бадж */
-        .status-live-pill {
+        .week-nav-current button {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--accent-cool);
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            text-decoration-thickness: 1px;
+            text-decoration-color: var(--accent-cool-soft);
+        }
+
+        .btn-png-export {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            background: rgba(112, 138, 116, 0.08);
-            border: 1px solid rgba(112, 138, 116, 0.15);
-            padding: 2.5px 7px;
-            border-radius: 100px;
-            font-size: 8px;
-            font-weight: 700;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .status-dot-pulse {
-            width: 4.5px;
-            height: 4.5px;
-            background-color: var(--accent);
-            border-radius: 50%;
-        }
-
-        /* Кнопка экспорта в PNG */
-        .export-btn {
-            background-color: var(--accent);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 100px;
-            padding: 8px 18px;
+            gap: 7px;
+            padding: 0 14px;
+            height: 32px;
+            background: var(--accent-warm);
+            color: white;
+            border: none;
+            border-radius: 10px;
             font-size: 11px;
             font-weight: 700;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 2px 8px -2px var(--accent-warm-glow);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-png-export:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px -2px var(--accent-warm-glow);
+        }
+
+        .btn-png-export:active { transform: translateY(0); }
+        .btn-png-export svg { width: 13px; height: 13px; }
+        .btn-png-export.loading { opacity: 0.7; pointer-events: none; }
+
+        /* ═══ ПЕРЕКЛЮЧАТЕЛЬ ОТТЕНКОВ ═══ */
+        .color-picker {
+            max-width: 560px;
+            margin: 12px auto 0 auto;
+            padding: 10px 14px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .color-picker-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+            min-width: 110px;
+        }
+
+        .color-options {
+            display: flex;
+            gap: 6px;
+        }
+
+        .color-option {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 15px rgba(112, 138, 116, 0.2);
-            transition: all 0.2s ease;
+            gap: 6px;
+            padding: 6px 10px 6px 7px;
+            background: var(--bg-shot);
+            border: 1.5px solid transparent;
+            border-radius: 8px;
             cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
         }
 
-        .export-btn:hover {
-            transform: translateY(-1.5px);
-            box-shadow: 0 6px 20px rgba(112, 138, 116, 0.3);
-            background-color: #5f7863;
+        .color-option:hover {
+            background: var(--neutral-bg);
         }
 
-        .export-btn:active {
-            transform: translateY(0.5px);
+        .color-option.active {
+            border-color: var(--text-primary);
+            background: var(--bg-shot);
+            color: var(--text-primary);
         }
 
-        /* Скрытый холст для рендеринга 4:3 */
-        #export-canvas-sandbox {
-            position: absolute;
-            left: -9999px;
-            top: -9999px;
-            width: 1200px;
-            height: 900px;
-            background-color: var(--bg-main);
+        .color-swatch-preview {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+            box-shadow:
+                inset 0 0 0 1px rgba(0,0,0,0.05);
+        }
+
+        .swatch-preview-soft { background: #8FA890; }
+        .swatch-preview-bright { background: #708A74; }
+        .swatch-preview-deep { background: #5C7060; }
+
+        /* Status bar */
+        .status-bar {
+            max-width: 560px;
+            margin: 10px auto 0 auto;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4px;
+            font-size: 10px;
+            color: var(--text-tertiary);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent-cool);
+        }
+
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .status-dot.pulse { animation: pulse-soft 1.8s ease-in-out infinite; }
+        .status-dot.warn { background: #D89150; }
+        .status-dot.error { background: #C25B5B; }
+
+        .debug-toggle {
+            background: none;
+            border: none;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.15s;
+        }
+
+        .debug-toggle:hover { opacity: 1; }
+
+        .debug-panel {
+            max-width: 560px;
+            margin: 12px auto 0 auto;
+            background: #1A1F1E;
+            color: #8FD89F;
+            padding: 14px;
+            border-radius: 12px;
+            font-family: "SF Mono", Monaco, monospace;
+            font-size: 10.5px;
+            max-height: 280px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .debug-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #2A302E;
+            color: white;
+            font-weight: 700;
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .debug-close {
+            cursor: pointer;
+            color: var(--text-tertiary);
+            font-size: 14px;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        /* ═══ РЕДАКТИРУЕМЫЙ РЕЖИМ ═══ */
+        .edit-mode .day-marker {
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+        .edit-mode .day-marker:hover { transform: scale(1.25); }
+        .edit-mode .day-marker:active { transform: scale(0.95); }
+        .edit-mode .progress-day-chip {
+            cursor: pointer;
+            transition: transform 0.1s ease, background 0.15s ease;
+        }
+        .edit-mode .progress-day-chip:hover { transform: scaleY(1.8); }
+        .edit-mode .streak-inline {
+            cursor: pointer;
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .edit-mode .streak-inline:hover { transform: scale(1.2); }
+        .edit-mode .streak-inline:active { transform: scale(0.9); }
+
+        /* Кнопка добавить огонёк (появляется при hover на name-cell если streak=0) */
+        .streak-add-btn {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 60px;
+            width: 16px; height: 16px;
+            border-radius: 4px;
+            border: 1px dashed var(--border-medium);
+            color: var(--text-tertiary);
+            font-size: 10px;
+            line-height: 1;
+            cursor: pointer;
+            opacity: 0;
+            flex-shrink: 0;
+            transition: opacity 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+            user-select: none;
+        }
+        .edit-mode .name-cell:hover .streak-add-btn { opacity: 1; }
+        .streak-add-btn:hover {
+            border-color: var(--accent-warm);
+            color: var(--accent-warm);
+            transform: scale(1.1);
         }
 
-        #export-canvas-sandbox .compact-container {
-            width: 100%;
-            max-width: 1080px;
+        /* Кнопки −/+ рядом с огоньком — только в edit-режиме */
+        .streak-controls {
+            display: none;
+            align-items: center;
+            gap: 2px;
+            flex-shrink: 0;
         }
 
-        /* Инспектор дебага */
-        .debug-panel {
-            margin-top: 30px;
-            background: #1e1e1e;
-            color: #76c976;
-            padding: 12px;
-            border-radius: 8px;
-            font-family: monospace;
+        .edit-mode .streak-controls { display: inline-flex; }
+
+        .streak-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px; height: 16px;
+            border-radius: 4px;
+            border: 1px solid var(--border-medium);
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.12s ease;
+            padding: 0;
+            font-weight: 500;
+        }
+
+        .streak-btn:hover { background: var(--neutral-bg); border-color: var(--text-tertiary); color: var(--text-primary); transform: scale(1.15); }
+        .streak-btn:active { transform: scale(0.9); }
+        .streak-btn.minus:hover { border-color: #C25B5B; color: #C25B5B; background: rgba(194,91,91,0.06); }
+        .streak-btn.plus:hover  { border-color: var(--accent-warm); color: var(--accent-warm); background: var(--accent-warm-soft); }
+
+        @keyframes bump {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.35); }
+            100% { transform: scale(1); }
+        }
+        .bumping { animation: bump 0.22s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+        /* Грязная карточка — оранжевый левый бордер */
+        .participant-card.dirty {
+            border-left: 2px solid var(--accent-warm);
+            padding-left: 9px;
+        }
+
+        /* Тогл режима редактирования */
+        .btn-edit-mode {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            height: 32px;
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-soft);
+            border-radius: 10px;
             font-size: 11px;
-            max-height: 250px;
-            overflow-y: auto;
-            border: 1px solid #333;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
         }
-        
-        @media (max-width: 440px) {
-            .leaderboard-header {
-                grid-template-columns: 15px 1fr 150px 50px; 
-                gap: 4px;
-            }
-            .leaderboard-card { 
-                grid-template-columns: 15px 1fr 150px 50px; 
-                gap: 4px;
-            }
-            .table-subheader {
-                grid-template-columns: 15px 1fr 150px 50px;
-                gap: 4px;
-            }
-            .rings-container {
-                padding-left: 4px;
-                padding-right: 4px; 
-                margin-left: 0;
-                gap: 5px;
-            }
-            .day-labels {
-                gap: 5px;
-                padding-left: 4px;
-                padding-right: 4px;
-            }
-            .header-date-container {
-                padding-left: 6px;
-                padding-right: 6px;
-                margin-left: 0;
-            }
-            .header-date-text {
-                font-size: 10px; 
-            }
-            .user-name { font-size: 11px; }
-            .table-footnote { flex-direction: column; gap: 12px; }
+        .btn-edit-mode svg { width: 13px; height: 13px; }
+        .btn-edit-mode:hover { border-color: var(--accent-cool); color: var(--accent-cool); }
+        .btn-edit-mode.active {
+            background: var(--accent-cool);
+            border-color: var(--accent-cool);
+            color: white;
+            box-shadow: 0 2px 8px -2px rgba(112, 138, 116, 0.35);
+        }
 
-            .badge-goal-revolutionary {
-                padding: 0 6px !important;
-                justify-content: space-between;
+        /* Кнопка сброса правок */
+        .btn-reset-edits {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            height: 32px;
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-soft);
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            opacity: 0;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .btn-reset-edits.visible { opacity: 1; pointer-events: auto; }
+        .btn-reset-edits:hover { border-color: var(--accent-warm); color: var(--accent-warm); }
+        .btn-reset-edits svg { width: 12px; height: 12px; }
+
+        /* ═══ PROGRESS VIEW MODE ═══ */
+
+        /* В progress-режиме days-grid скрыт, полоска через ::before на карточке */
+        .progress-col { display: none; }
+        .view-progress .days-grid { display: none !important; }
+        .view-progress .participant-card,
+        .view-progress .column-headers {
+            grid-template-columns: 22px 1fr 50px;
+        }
+
+        /* Заголовки колонок */
+        .col-header-progress { display: none; }
+        .view-progress .col-header-days-label { display: none; }
+
+
+        /* name-cell в progress-режиме: обычный горизонтальный flex (как в dots) */
+        .view-progress .name-cell {
+            flex-direction: row;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Бар-враппер скрыт в обоих режимах — полоска теперь через ::before на карточке */
+        .progress-bar-wrap { display: none; }
+
+        .view-progress .participant-card { min-height: 30px; }
+
+        /* Вертикальная полоска слева — высота = прогресс через --p (0–1) */
+        .view-progress .participant-card {
+            position: relative;
+            overflow: hidden; /* чтобы ::before не вылезал за border-radius */
+        }
+
+        .view-progress .participant-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2.5px;
+            height: 100%;
+            background: var(--training-color);
+            opacity: 0.5;
+            border-radius: 0;
+        }
+
+        .progress-bar-track { display: none; }
+        .progress-bar-fill { display: none; }
+        .progress-bar-goal-line { display: none; }
+
+        .legend-progress-only { display: none; }
+        .view-progress .legend-dots-only { display: none; }
+        .view-progress .legend-progress-only { display: inline-flex; }
+
+        /* Переключатель вида */
+        .view-toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-top: 9px;
+            margin-top: 9px;
+            border-top: 1px solid var(--border-soft);
+        }
+
+        .view-toggle-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+            min-width: 110px;
+        }
+
+        .view-options {
+            display: flex;
+            gap: 6px;
+        }
+
+        .view-option {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 10px 6px 8px;
+            background: var(--bg-shot);
+            border: 1.5px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .view-option:hover { background: var(--neutral-bg); }
+        .view-option.active { border-color: var(--text-primary); background: var(--bg-shot); color: var(--text-primary); }
+
+        /* Иконка «квадратики» */
+        .icon-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .icon-dots span {
+            display: inline-block;
+            width: 5px; height: 5px;
+            border-radius: 1.5px;
+            background: currentColor;
+            opacity: 0.75;
+        }
+
+        /* Иконка «прогресс-бар» */
+        .icon-bar {
+            width: 28px; height: 5px;
+            border-radius: 100px;
+            background: var(--border-medium);
+            position: relative;
+            overflow: hidden;
+            opacity: 0.9;
+        }
+        .icon-bar::after {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 65%;
+            background: currentColor;
+            border-radius: 100px;
+        }
+
+        /* Skeleton loader */
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: 200px 0; }
+        }
+
+        .skeleton-card {
+            height: 30px;
+            background: linear-gradient(90deg, #F3EEE3 0%, #FAF7F1 50%, #F3EEE3 100%);
+            background-size: 400px 100%;
+            animation: shimmer 1.4s linear infinite;
+            border-radius: 8px;
+            border: 1px solid var(--border-soft);
+        }
+
+        /* PNG-export режим — скрываем служебные элементы не трогая layout зоны */
+        body.exporting .admin-toolbar,
+        body.exporting .status-bar,
+        body.exporting .debug-panel,
+        body.exporting .color-picker {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        /* Скрываем интерактивные элементы внутри зоны при экспорте */
+        body.exporting .streak-controls,
+        body.exporting .streak-add-btn {
+            display: none !important;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 520px) {
+            body { padding-left: 10px; padding-right: 10px; }
+            .screenshot-zone { padding: 16px 14px; border-radius: 18px; }
+            .brand-title { font-size: 18px; }
+            .week-display-num { font-size: 32px; }
+            .meta-strip { padding: 8px 10px; gap: 8px; font-size: 10.5px; }
+            .participant-card,
+            .column-headers {
+                grid-template-columns: 20px 1fr 96px 44px;
+                gap: 6px;
             }
-            .badge-week-revolutionary {
-                padding: 0 4px !important;
-                justify-content: center;
-            }
+            .participant-card { padding: 5px 8px; min-height: 28px; }
+            .participant-name { font-size: 11.5px; }
+            .score-main { font-size: 13.5px; }
+            .day-marker { width: 9px; height: 9px; }
+            .footer-brand { display: none; }
+            .color-picker { flex-wrap: wrap; }
+            .color-options { width: 100%; }
         }
     </style>
 </head>
-<body class="py-5 px-3">
+<body class="py-6 px-4">
 
-    <div class="compact-container">
-        
-        <!-- Прозрачная красивая рамка, оборачивающая всю таблицу вместе с заголовками -->
-        <div id="capture-target" class="glass-wrapper">
-            
-            <!-- Шапка -->
-            <div class="section-header">
-                <span class="section-title">
-                    <i class="fa-solid fa-bolt"></i>
-                    <span>Трекер</span><strong>Активности</strong>
-                </span>
-            </div>
+    <!-- ═══════════════════════════════════════════════
+         ЗОНА СКРИНШОТА
+         ═══════════════════════════════════════════════ -->
+    <div class="screenshot-zone" id="screenshot-zone">
 
-            <!-- Революционная панель-шапка таблицы -->
-            <div class="leaderboard-header">
-                <div></div> <!-- Ранг -->
-                <div class="header-section-label">
-                    <!-- Революционный светлый бадж недели с переключателями -->
-                    <div class="flex items-center gap-1.5">
-                        <button onclick="changeWeek(-1)" class="w-5 h-5 flex items-center justify-center rounded-full bg-white/60 border border-gray-300 hover:bg-white transition-all text-[8px] text-gray-600 focus:outline-none" title="Предыдущая неделя">
-                            <i class="fa-solid fa-chevron-left"></i>
-                        </button>
-                        <span id="total-workouts-stat" class="header-badge-capsule badge-week-revolutionary" style="display: none;">
-                            <span class="week-indicator-dot"></span>
-                            <span id="stat-combined-text">1 НЕДЕЛЯ</span>
-                        </span>
-                        <button onclick="changeWeek(1)" class="w-5 h-5 flex items-center justify-center rounded-full bg-white/60 border border-gray-300 hover:bg-white transition-all text-[8px] text-gray-600 focus:outline-none" title="Следующая неделя">
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-                <!-- Дата диапазона недели, идеально центрированная над точками активности и симметрично отделенная | | -->
-                <div class="header-date-container">
-                    <i class="fa-regular fa-calendar text-[11px] text-[#555251] mr-1.5 opacity-90"></i>
-                    <span id="today-date" class="header-date-text">-</span>
-                </div>
-                <!-- Революционный бадж индивидуальной спортивной цели на всю ширину колонки -->
-                <div class="header-section-label w-full justify-end">
-                    <div class="header-badge-capsule badge-goal-revolutionary" title="Спортивная цель на текущую неделю">
-                        <!-- Иконка кубка заменена на наш эстетичный SVG-огонёк -->
-                        <div class="goal-label-icon">
-                            <svg width="11" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill="var(--streak-fire)" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
-                                <path fill="#FFD074" d="M12 11c-.5.8-1 1.6-1 2.3a1 1 0 0 0 2 0c0-.7-.5-1.5-1-2.3z"></path>
-                            </svg>
-                        </div>
-                        <span class="goal-numbers">
-                            <span class="goal-number-accent">5</span>
-                            <span class="goal-number-muted">/7</span>
-                        </span>
-                    </div>
+        <!-- Шапка: заголовок как на скриншоте + номер недели -->
+        <div class="shot-header">
+            <div class="brand-block">
+                <div class="brand-title">
+                    <svg class="brand-bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.09 12.97A1 1 0 0 0 5 14.5h5.5L10 22l8.91-10.97A1 1 0 0 0 18 9.5h-5.5L13 2z"/></svg>
+                    <span class="brand-light">Трекер</span>
+                    <strong class="brand-bold">Активности</strong>
                 </div>
             </div>
-
-            <!-- Дополнительная строка подзаголовков столбцов над таблицей -->
-            <div class="table-subheader">
-                <div></div> <!-- Ранг -->
-                <div class="flex items-center gap-1.5 pl-0.5">
-                    <i class="fa-regular fa-user text-[10px] text-[#8A8785] opacity-90"></i>
-                    <span>Участники</span>
-                </div>
-                <div class="day-labels">
-                    <span class="day-label-item">П</span>
-                    <span class="day-label-item">В</span>
-                    <span class="day-label-item">С</span>
-                    <span class="day-label-item">Ч</span>
-                    <span class="day-label-item">П</span>
-                    <span class="day-label-item">С</span>
-                    <span class="day-label-item">В</span>
-                </div>
-                <div class="text-right pr-1">Итог</div>
+            <div class="week-display">
+                <span class="week-display-hash">№</span>
+                <span class="week-display-num" id="week-num-big">1</span>
             </div>
-
-            <!-- Контейнер карточек -->
-            <div id="tracks-container" class="space-y-1">
-                <div class="text-center py-10 text-gray-400 text-sm">
-                    <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Загрузка участников...
-                </div>
-            </div>
-
-            <!-- Легенда -->
-            <div class="table-footnote">
-                <div class="footnote-legend">
-                    <span class="legend-item">
-                        <span class="legend-dot" style="background-color: var(--active-day);"></span> Тренировка
-                    </span>
-                    <span class="legend-item">
-                        <span class="legend-dot" style="background-color: rgba(112, 138, 116, 0.25);"></span> Отдых
-                    </span>
-                </div>
-                
-                <!-- Красивый динамический бадж недели в легенде -->
-                <div id="dynamic-weeks-badge" class="footnote-days-badge">
-                    НЕДЕЛЯ 1 · 11–17 МАЯ 2026
-                </div>
-            </div>
-
-        </div> <!-- Конец стеклянной обертки -->
-
-        <!-- Кнопки управления и системные баджи (НЕ попадают на скриншот) -->
-        <div class="mt-6 text-center flex flex-col items-center gap-4">
-            
-            <button onclick="exportToPng()" class="export-btn">
-                <i class="fa-solid fa-camera"></i>
-                <span>Скачать карточку (4:3 PNG)</span>
-            </button>
-
-            <!-- Техническая кнопка сброса изменений вынесена за пределы таблицы -->
-            <div class="flex items-center gap-4">
-                <button id="reset-overrides-btn" onclick="resetWeekOverrides()" class="text-[10px] uppercase tracking-wider text-amber-700/60 hover:text-amber-800 transition-all font-bold" title="Сбросить все ручные изменения дней и огоньков для этой недели">
-                    <i class="fa-solid fa-arrow-rotate-left mr-1"></i> Сбросить изменения недели
-                </button>
-            </div>
-
-            <div id="status" class="transition-all duration-300">
-                <span class="status-live-pill">
-                    <span class="status-dot-pulse anim-pulse"></span>
-                    <span>Синхронизация...</span>
-                </span>
-            </div>
-            
-            <button onclick="toggleDebug()" class="text-[9px] uppercase tracking-wider text-gray-400/40 hover:text-gray-600 transition-all font-semibold mt-1">
-                <i class="fa-solid fa-bug mr-1"></i> Инспектор данных (Debug)
-            </button>
         </div>
 
-        <!-- Скрытая панель дебага -->
-        <div id="debug-panel" class="debug-panel hidden">
-            <div class="font-bold border-b border-gray-700 pb-1 mb-2 text-white flex justify-between">
-                <span>API RESPONSE INSPECTOR</span>
-                <span class="text-gray-500 cursor-pointer" onclick="toggleDebug()">✕</span>
+        <!-- Мета-полоса: всё в одну строку -->
+        <div class="meta-strip">
+            <div class="meta-item">
+                <svg class="meta-icon calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="3"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                </svg>
+                <span id="date-range">—</span>
             </div>
-            <pre id="debug-json">Ожидание загрузки данных...</pre>
+
+            <span class="meta-divider-dot"></span>
+
+            <div class="meta-item">
+                <svg class="meta-icon target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <circle cx="12" cy="12" r="5"/>
+                    <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                </svg>
+                <span class="meta-label">Цель</span>
+                <span><span class="meta-value-highlight">5</span><span class="meta-of">/7</span></span>
+                <span class="goal-dots">
+                    <span class="goal-dot filled"></span>
+                    <span class="goal-dot filled"></span>
+                    <span class="goal-dot filled"></span>
+                    <span class="goal-dot filled"></span>
+                    <span class="goal-dot filled"></span>
+                    <span class="goal-dot"></span>
+                    <span class="goal-dot"></span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Заголовки колонок -->
+        <div class="column-headers">
+            <div class="col-header-text col-header-rank">№</div>
+            <div class="col-header-text">Участник</div>
+            <div class="days-header-row col-header-days-label">
+                <span class="day-letter-header">П</span>
+                <span class="day-letter-header">В</span>
+                <span class="day-letter-header">С</span>
+                <span class="day-letter-header">Ч</span>
+                <span class="day-letter-header">П</span>
+                <span class="day-letter-header weekend">С</span>
+                <span class="day-letter-header weekend">В</span>
+            </div>
+            <div class="col-header-text col-header-progress" style="text-align:center;">Прогресс</div>
+            <div class="col-header-text col-header-score">Итог</div>
+        </div>
+
+        <!-- Карточки -->
+        <div id="card-list" class="card-list">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+
+        <!-- Футер -->
+        <div class="shot-footer">
+            <div class="footer-legend">
+                <!-- Легенда для dots-режима -->
+                <span class="legend-item legend-dots-only">
+                    <span class="legend-swatch swatch-active"></span> Тренировка
+                </span>
+                <span class="legend-item legend-dots-only">
+                    <span class="legend-swatch swatch-rest"></span> Отдых
+                </span>
+                <!-- Легенда для progress-режима -->
+                <span class="legend-item legend-progress-only">
+                    <span class="legend-swatch" style="background: var(--training-color); opacity: 0.5;"></span> Активность
+                </span>
+            </div>
+            <div class="footer-brand" id="footer-date">—</div>
         </div>
     </div>
 
-    <!-- Скрытая песочница для рендеринга идеального снимка 4:3 -->
-    <div id="export-canvas-sandbox">
-        <div class="compact-container">
-            <div id="sandbox-mirror"></div>
+    <!-- ═══════════════════════════════════════════════
+         ВНЕ ЗОНЫ СКРИНШОТА
+         ═══════════════════════════════════════════════ -->
+
+    <div class="admin-toolbar">
+        <div class="toolbar-left">
+            <button class="week-nav-btn" id="week-prev" aria-label="Предыдущая неделя">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </button>
+            <div class="week-nav-current">
+                <span id="nav-week-text">Неделя 1</span>
+                <button id="nav-jump-current" title="К текущей неделе">сейчас</button>
+            </div>
+            <button class="week-nav-btn" id="week-next" aria-label="Следующая неделя">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </button>
+
+            <!-- Кнопка режима редактирования -->
+            <button class="btn-edit-mode" id="btn-edit-mode" title="Редактировать данные перед скриншотом">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                <span id="edit-mode-label">Редактировать</span>
+            </button>
+
+            <!-- Кнопка сброса правок -->
+            <button class="btn-reset-edits" id="btn-reset-edits" title="Сбросить все правки">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                </svg>
+                <span>Сбросить</span>
+            </button>
         </div>
+
+        <button class="btn-png-export" id="btn-export-png">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>Скачать PNG</span>
+        </button>
+    </div>
+
+    <!-- Переключатель оттенков + вид таблицы -->
+    <div class="color-picker">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <span class="color-picker-label">Оттенок шалфея</span>
+            <div class="color-options" id="color-options">
+                <button class="color-option" data-shade="soft">
+                    <span class="color-swatch-preview swatch-preview-soft"></span>
+                    <span>Мягкий</span>
+                </button>
+                <button class="color-option" data-shade="bright">
+                    <span class="color-swatch-preview swatch-preview-bright"></span>
+                    <span>Средний</span>
+                </button>
+                <button class="color-option" data-shade="deep">
+                    <span class="color-swatch-preview swatch-preview-deep"></span>
+                    <span>Глубокий</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Переключатель вида таблицы -->
+        <div class="view-toggle-row">
+            <span class="view-toggle-label">Вид таблицы</span>
+            <div class="view-options" id="view-options">
+                <button class="view-option active" data-view="dots">
+                    <span class="icon-dots">
+                        <span></span><span></span><span></span>
+                        <span></span><span></span><span></span>
+                        <span></span>
+                    </span>
+                    <span>Квадратики</span>
+                </button>
+                <button class="view-option" data-view="progress">
+                    <span class="icon-bar"></span>
+                    <span>Прогресс</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-indicator" id="status-indicator">
+            <span class="status-dot pulse"></span>
+            <span id="status-text">Синхронизация...</span>
+        </div>
+        <button class="debug-toggle" onclick="toggleDebug()">
+            <span>◇ Debug</span>
+        </button>
+    </div>
+
+    <div id="debug-panel" class="debug-panel" style="display: none;">
+        <div class="debug-panel-header">
+            <span>API Response Inspector</span>
+            <button class="debug-close" onclick="toggleDebug()">×</button>
+        </div>
+        <pre id="debug-json">Ожидание данных...</pre>
     </div>
 
     <script>
+        // ═════════════════════════════════════════════════
+        // КОНФИГУРАЦИЯ
+        // ═════════════════════════════════════════════════
         const CONFIG = {
             SEASON_START_DATE: "2026-05-11",
-            SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxzPOszPmAKzvS51vSUAGombHUEW8ucgaB5kXp-YIerboC2EGMJcMJITP7LKO7Stb9D/exec"
+            SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxzPOszPmAKzvS51vSUAGombHUEW8ucgaB5kXp-YIerboC2EGMJcMJITP7LKO7Stb9D/exec",
+            TIMEZONE: "Europe/Moscow",
+            GRACE_PERIOD: { dayOfWeek: 1, untilHour: 19 },
+            MONTH_NAMES: ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
+            WEEKLY_GOAL: 5,
+            STORAGE_KEY: 'fk_sage_shade'
         };
 
-        // Текущая активная неделя и исходные данные участников
-        let activeWeek = 1;
-        let originalParticipantsData = [];
+        // Палитра шалфейных оттенков
+        const SAGE_SHADES = {
+            soft:   { color: '#8FA890', glow: 'rgba(143, 168, 144, 0.25)' },
+            bright: { color: '#708A74', glow: 'rgba(112, 138, 116, 0.25)' },
+            deep:   { color: '#5C7060', glow: 'rgba(92, 112, 96, 0.25)' }
+        };
 
-        // Вычисление текущей календарной недели по умолчанию
-        function getDefaultWeek() {
-            const now = new Date();
-            const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000) + (now.getTimezoneOffset() * 60000));
-            const currentDayOfWeek = moscowTime.getDay(); 
-            const currentHours = moscowTime.getHours();
-            
-            let referenceDate = new Date(moscowTime);
-            if (currentDayOfWeek === 1 && currentHours < 19) {
-                referenceDate.setDate(moscowTime.getDate() - 1);
+        const state = {
+            currentWeek: 1,
+            viewedWeek: 1,
+            currentRange: { start: null, end: null },
+            lastFetchData: null,
+            sageShade: 'soft'  // дефолт по умолчанию
+        };
+
+        // ═════════════════════════════════════════════════
+        // ПЕРЕКЛЮЧАТЕЛЬ ВИДА ТАБЛИЦЫ
+        // ═════════════════════════════════════════════════
+        const VIEW_KEY = 'fk_table_view';
+        let currentView = 'dots';
+
+        function applyView(view) {
+            currentView = view;
+            const zone = document.getElementById('screenshot-zone');
+            const cardList = document.getElementById('card-list');
+
+            if (view === 'progress') {
+                zone.classList.add('view-progress');
+                cardList.classList.add('view-progress');
+            } else {
+                zone.classList.remove('view-progress');
+                cardList.classList.remove('view-progress');
             }
 
-            const start = new Date(CONFIG.SEASON_START_DATE);
-            start.setHours(0, 0, 0, 0);
-            referenceDate.setHours(0, 0, 0, 0);
+            document.querySelectorAll('.view-option').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
 
-            const diffMs = referenceDate.getTime() - start.getTime();
-            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-            
-            return diffDays >= 0 ? Math.floor(diffDays / 7) + 1 : 1;
+            try { localStorage.setItem(VIEW_KEY, view); } catch(e) {}
         }
 
-        // Локальное хранилище ручных настроек для скриншотов
-        function getOverrides(week) {
+        function initViewToggle() {
+            let saved = 'dots';
+            try { const s = localStorage.getItem(VIEW_KEY); if (s) saved = s; } catch(e) {}
+            applyView(saved);
+
+            document.querySelectorAll('.view-option').forEach(btn => {
+                btn.addEventListener('click', () => applyView(btn.dataset.view));
+            });
+        }
+        // ═════════════════════════════════════════════════
+        function applySageShade(shade) {
+            const { color, glow } = SAGE_SHADES[shade];
+            document.documentElement.style.setProperty('--training-color', color);
+            document.documentElement.style.setProperty('--training-color-glow', glow);
+            
+            // Обновляем активную кнопку
+            document.querySelectorAll('.color-option').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.shade === shade);
+            });
+            
+            state.sageShade = shade;
             try {
-                const data = localStorage.getItem(`tracker_overrides_w_${week}`);
-                return data ? JSON.parse(data) : {};
-            } catch (e) {
-                return {};
-            }
+                localStorage.setItem(CONFIG.STORAGE_KEY, shade);
+            } catch(e) { /* localStorage недоступен — игнор */ }
         }
 
-        function saveOverrides(week, overrides) {
+        function initSagePicker() {
+            // Восстанавливаем сохранённый выбор
+            let savedShade = 'soft';
             try {
-                localStorage.setItem(`tracker_overrides_w_${week}`, JSON.stringify(overrides));
-            } catch (e) {
-                console.error("Не удалось сохранить изменения в localStorage", e);
-            }
+                const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
+                if (saved && SAGE_SHADES[saved]) savedShade = saved;
+            } catch(e) {}
+            
+            applySageShade(savedShade);
+            
+            // Привязываем клики
+            document.querySelectorAll('.color-option').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    applySageShade(btn.dataset.shade);
+                });
+            });
         }
 
-        // Переключение недели
-        function changeWeek(direction) {
-            const targetWeek = activeWeek + direction;
-            if (targetWeek < 1 || targetWeek > 52) return; 
-            activeWeek = targetWeek;
-            localStorage.setItem('selected_week_tracker', activeWeek);
-            fetchData();
+        // ═════════════════════════════════════════════════
+        // ВРЕМЯ
+        // ═════════════════════════════════════════════════
+        function getMoscowDateParts() {
+            const fmt = new Intl.DateTimeFormat('en-CA', {
+                timeZone: CONFIG.TIMEZONE,
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', weekday: 'short',
+                hour12: false
+            });
+            const parts = Object.fromEntries(
+                fmt.formatToParts(new Date()).map(p => [p.type, p.value])
+            );
+            const weekdayMap = { Sun:0, Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6 };
+            return {
+                year: +parts.year,
+                month: +parts.month,
+                day: +parts.day,
+                hour: +parts.hour,
+                weekday: weekdayMap[parts.weekday]
+            };
         }
 
-        // Сброс всех локальных ручных изменений на текущей неделе
-        function resetWeekOverrides() {
-            localStorage.removeItem(`tracker_overrides_w_${activeWeek}`);
-            render(originalParticipantsData);
+        function getMoscowMidnight() {
+            const m = getMoscowDateParts();
+            return new Date(Date.UTC(m.year, m.month - 1, m.day));
         }
 
-        // Интерактивное переключение статуса дня (активен / отдых) по клику
-        window.toggleDay = function(name, dayIndex) {
-            const overrides = getOverrides(activeWeek);
-            const p = originalParticipantsData.find(u => u.name === name);
-            if (!p) return;
-            
-            const currentOverride = overrides[name] || {};
-            const currentData = currentOverride.data !== undefined 
-                ? [...currentOverride.data] 
-                : [...(Array.isArray(p.data) ? p.data : [0,0,0,0,0,0,0])];
-                
-            currentData[dayIndex] = currentData[dayIndex] ? 0 : 1;
-            
-            currentOverride.data = currentData;
-            overrides[name] = currentOverride;
-            saveOverrides(activeWeek, overrides);
-            
-            render(originalParticipantsData);
-        };
-
-        // Интерактивное редактирование количества огоньков
-        window.updateStreak = function(name, element) {
-            let val = parseInt(element.innerText.trim(), 10);
-            if (isNaN(val) || val < 0) val = 0;
-            element.innerText = val; 
-            
-            const overrides = getOverrides(activeWeek);
-            const currentOverride = overrides[name] || {};
-            currentOverride.streak = val;
-            overrides[name] = currentOverride;
-            saveOverrides(activeWeek, overrides);
-            
-            render(originalParticipantsData);
-        };
-
-        window.checkEnter = function(event, element) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                element.blur();
-            }
-        };
-
-        function setWeeklyRange() {
-            const dateEl = document.getElementById('today-date');
-            const legendWeekEl = document.getElementById('dynamic-weeks-badge');
-            const seasonStart = new Date(CONFIG.SEASON_START_DATE);
-            
-            const startDate = new Date(seasonStart.getTime() + (activeWeek - 1) * 7 * 24 * 60 * 60 * 1000);
-            const endDate = new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000);
-            
-            const monthNames = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
-            const fullMonthNames = ["ЯНВАРЯ", "ФЕВРАЛЯ", "МАРТА", "АПРЕЛЯ", "МАЯ", "ИЮНЯ", "ИЮЛЯ", "АВГУСТА", "СЕНТЯБРЯ", "ОКТЯБРЯ", "НОЯБРЯ", "ДЕКАБРЯ"];
-            
-            const startDay = startDate.getDate();
-            const startMonth = monthNames[startDate.getMonth()];
-            const endDay = endDate.getDate();
-            const endMonth = monthNames[endDate.getMonth()];
-            
-            const startMonthFull = fullMonthNames[startDate.getMonth()];
-            const endMonthFull = fullMonthNames[endDate.getMonth()];
-            const endYear = endDate.getFullYear();
-            
-            if (dateEl) {
-                dateEl.textContent = startMonth === endMonth 
-                    ? `${startDay} - ${endDay} ${startMonth}`
-                    : `${startDay} ${startMonth} - ${endDay} ${endMonth}`;
-            }
-
-            // Рендерим красивый бадж периода в легенде
-            if (legendWeekEl) {
-                if (startDate.getMonth() === endDate.getMonth()) {
-                    legendWeekEl.textContent = `НЕДЕЛЯ ${activeWeek} · ${startDay}–${endDay} ${startMonthFull} ${endYear}`;
-                } else {
-                    legendWeekEl.textContent = `НЕДЕЛЯ ${activeWeek} · ${startDay} ${startMonthFull} – ${endDay} ${endMonthFull} ${endYear}`;
-                }
-            }
+        function addDays(date, days) {
+            const d = new Date(date);
+            d.setUTCDate(d.getUTCDate() + days);
+            return d;
         }
 
-        async function fetchData() {
-            const statusEl = document.getElementById('status');
-            const containerEl = document.getElementById('tracks-container');
-            const debugJsonEl = document.getElementById('debug-json');
-            setWeeklyRange();
-
-            try {
-                const response = await fetch(`${CONFIG.SCRIPT_URL}?week=${activeWeek}`);
-                if (!response.ok) throw new Error("Сетевая ошибка запроса");
-                
-                const rawResult = await response.json();
-                debugJsonEl.textContent = JSON.stringify(rawResult, null, 2);
-                
-                if (rawResult && rawResult.success && Array.isArray(rawResult.data)) {
-                    originalParticipantsData = rawResult.data;
-                    render(originalParticipantsData);
-                    calculateTeamStats();
-                    
-                    statusEl.innerHTML = `
-                        <span class="status-live-pill">
-                            <span class="status-dot-pulse bg-emerald-500"></span>
-                            <span class="text-emerald-700 font-bold">Неделя ${activeWeek} • Live</span>
-                        </span>
-                    `;
-                } else {
-                    console.warn("Неверная структура JSON, запуск ДЕМО режима");
-                    statusEl.innerHTML = `
-                        <span class="status-live-pill">
-                            <span class="status-dot-pulse bg-amber-500"></span>
-                            <span class="text-amber-700">Ошибка структуры данных</span>
-                        </span>
-                    `;
-                    originalParticipantsData = getDemoData();
-                    render(originalParticipantsData);
-                    calculateTeamStats();
-                }
-            } catch (error) {
-                console.error("Ошибка при получении данных:", error);
-                debugJsonEl.textContent = "Error loading from script: " + error.toString();
-                statusEl.innerHTML = `
-                    <span class="status-live-pill">
-                        <span class="status-dot-pulse bg-amber-500"></span>
-                        <span class="text-amber-700">Офлайн режим (Демо)</span>
-                    </span>
-                `;
-                originalParticipantsData = getDemoData();
-                render(originalParticipantsData);
-                calculateTeamStats();
-            } finally {
-                if (containerEl) containerEl.classList.remove('opacity-0');
-            }
+        function getMondayOf(date) {
+            const day = date.getUTCDay();
+            const shift = day === 0 ? -6 : (1 - day);
+            return addDays(date, shift);
         }
 
-        function calculateTeamStats() {
-            const statBubble = document.getElementById('total-workouts-stat');
-            const combinedTextEl = document.getElementById('stat-combined-text');
-            if (statBubble && combinedTextEl) {
-                combinedTextEl.textContent = `${activeWeek} НЕДЕЛЯ`;
-                statBubble.style.display = 'inline-flex';
-            }
+        function computeWeekRange(weekNumber) {
+            const seasonStart = new Date(CONFIG.SEASON_START_DATE + "T00:00:00Z");
+            const start = addDays(seasonStart, (weekNumber - 1) * 7);
+            const end = addDays(start, 6);
+            return { start, end };
         }
 
-        function render(participants) {
-            const container = document.getElementById('tracks-container');
-            if (!participants || !Array.isArray(participants) || participants.length === 0) {
-                container.innerHTML = '<div class="text-center py-10 text-gray-400 text-sm">Данные не найдены</div>';
-                return;
+        function determineCurrentWeek() {
+            const moscow = getMoscowDateParts();
+            const moscowMidnight = getMoscowMidnight();
+            let referenceWeek = getMondayOf(moscowMidnight);
+
+            const isInGracePeriod =
+                moscow.weekday === CONFIG.GRACE_PERIOD.dayOfWeek &&
+                moscow.hour < CONFIG.GRACE_PERIOD.untilHour;
+
+            if (isInGracePeriod) {
+                referenceWeek = addDays(referenceWeek, -7);
             }
 
-            const overrides = getOverrides(activeWeek);
+            const seasonStart = new Date(CONFIG.SEASON_START_DATE + "T00:00:00Z");
+            const diffDays = Math.floor((referenceWeek - seasonStart) / (1000 * 60 * 60 * 24));
+            const weekNum = Math.floor(diffDays / 7) + 1;
+            return Math.max(1, weekNum);
+        }
 
-            const sorted = participants
-                .map(p => {
-                    const override = overrides[p.name] || {};
-                    const data = override.data !== undefined 
-                        ? override.data 
-                        : (Array.isArray(p.data) ? p.data : [0,0,0,0,0,0,0]);
-                    const streak = override.streak !== undefined 
-                        ? override.streak 
-                        : (parseInt(p.streak, 10) || 0);
-                    const total = data.reduce((a, b) => a + b, 0);
-                    
-                    return {
-                        ...p,
-                        safeData: data,
-                        streak: streak,
-                        total: total
-                    };
-                })
-                .sort((a, b) => b.total - a.total);
+        function formatDateRange(start, end) {
+            const sd = start.getUTCDate();
+            const sm = start.getUTCMonth();
+            const ed = end.getUTCDate();
+            const em = end.getUTCMonth();
+            const ey = end.getUTCFullYear();
+            if (sm === em) return `${sd}–${ed} ${CONFIG.MONTH_NAMES[em]} ${ey}`;
+            return `${sd} ${CONFIG.MONTH_NAMES[sm]} – ${ed} ${CONFIG.MONTH_NAMES[em]} ${ey}`;
+        }
 
-            container.innerHTML = sorted.map((p, i) => {
-                const rank = i + 1;
-                
-                // Рендерим дни с крупными квадратами и новыми отступами
-                const rings = p.safeData.map((a, dIndex) => 
-                    `<div class="day-ring ${a ? 'active' : ''}" onclick="toggleDay('${p.name}', ${dIndex})" title="Переключить день ${dIndex+1}"></div>`
-                ).join('');
-                
-                const isInactive = p.streak === 0;
-                
-                const streakHtml = `
-                    <span class="streak-badge ${isInactive ? 'inactive' : ''}" title="Редактировать серию">
-                        <svg width="13" height="15" viewBox="0 0 24 24" stroke="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path class="flame-outer" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
-                            <path class="flame-inner" d="M12 11c-.5.8-1 1.6-1 2.3a1 1 0 0 0 2 0c0-.7-.5-1.5-1-2.3z"></path>
+        // ═════════════════════════════════════════════════
+        // РЕНДЕР
+        // ═════════════════════════════════════════════════
+        function updateWeekUI(weekNumber) {
+            const { start, end } = computeWeekRange(weekNumber);
+            state.currentRange = { start, end };
+
+            document.getElementById('week-num-big').textContent = weekNumber;
+            document.getElementById('date-range').textContent = formatDateRange(start, end);
+            document.getElementById('nav-week-text').textContent = `Неделя ${weekNumber}`;
+            document.getElementById('footer-date').textContent = `Неделя ${weekNumber} · ${formatDateRange(start, end)}`;
+
+            document.getElementById('week-prev').disabled = weekNumber <= 1;
+            document.getElementById('week-next').disabled = weekNumber >= state.currentWeek;
+        }
+
+        // ═════════════════════════════════════════════════
+        // РЕАКТИВНАЯ МОДЕЛЬ ДАННЫХ
+        // ═════════════════════════════════════════════════
+
+        // editableState — единственный источник правды для текущего отображения.
+        // originalState — слепок данных из API, используется для сброса правок.
+        let editableState = [];
+        let originalState = [];
+        let isEditMode = false;
+        let hasDirtyData = false;
+
+        function cloneState(arr) {
+            return arr.map(p => ({ ...p, data: [...p.data] }));
+        }
+
+        // Пересчёт total и пересортировка с сохранением DOM-позиций через FLIP
+        function reorderAndRender() {
+            // Пересчитываем total для каждого
+            editableState.forEach(p => {
+                p.total = p.data.reduce((a, b) => a + (b ? 1 : 0), 0);
+            });
+
+            // Сортируем
+            editableState.sort((a, b) => {
+                if (b.total !== a.total) return b.total - a.total;
+                return b.streak - a.streak;
+            });
+
+            // Перерисовываем все карточки
+            renderCards();
+        }
+
+        function renderCards() {
+            const container = document.getElementById('card-list');
+            container.innerHTML = editableState.map((p, i) => buildCardHTML(p, i)).join('');
+            if (isEditMode) bindCardEvents();
+        }
+
+        // Строим HTML одной карточки
+        function buildCardHTML(p, i) {
+            const rank = i + 1;
+            const isEven = i % 2 === 1;
+            const goalMet = p.total >= CONFIG.WEEKLY_GOAL;
+            // Бордер «грязной» карточки только пока активен edit-режим
+            const isDirty = isEditMode && (p._dirty || false);
+
+            const daysHtml = p.data.map((active, idx) => {
+                const isWeekend = idx >= 5;
+                const classes = ['day-marker', active ? 'active' : '', isWeekend ? 'weekend' : ''].filter(Boolean).join(' ');
+                return `<div class="${classes}" data-pid="${p._id}" data-day="${idx}"></div>`;
+            }).join('');
+
+            // Огонёк — только если streak > 0, кнопки −/+ видны только в edit-режиме
+            let streakHtml = '';
+            if (p.streak > 0) {
+                streakHtml = `
+                    <span class="streak-inline active" title="Серия: ${p.streak} нед.">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path class="flame-body" d="M12 2c.5 3 2 5 4 6.5C18 10 19 12 19 14a7 7 0 0 1-14 0c0-1.2.4-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5A2.5 2.5 0 0 0 11 11c0-1.4-.5-2-1-3-1-2.1-.2-4 2-6z"/>
+                            <path class="flame-core" d="M12 13c-.6 1-1 2-1 2.8a1 1 0 0 0 2 0c0-.8-.5-1.8-1-2.8z"/>
                         </svg>
-                        <span class="streak-badge-value" contenteditable="true" onblur="updateStreak('${p.name}', this)" onkeydown="checkEnter(event, this)">${p.streak}</span>
+                        <span class="streak-num">${p.streak}</span>
+                    </span>
+                    <span class="streak-controls">
+                        <button class="streak-btn minus" data-pid="${p._id}" data-action="streak-minus" tabindex="-1">−</button>
+                        <button class="streak-btn plus"  data-pid="${p._id}" data-action="streak-plus"  tabindex="-1">+</button>
                     </span>`;
-                
-                // Интеллектуальное окрашивание в терракотовый при total >= 5
-                const isTargetReached = p.total >= 5;
-                
-                return `
-                    <div class="leaderboard-card rank-${rank}">
-                        <div class="rank-number">${rank}</div>
-                        <div class="user-name-wrapper">
-                            <div class="user-name" title="${p.name}">${p.name}</div>
+            }
+
+            // Кнопка «добавить огонёк» — если streak=0, только в edit-режиме при hover
+            const addStreakHtml = (p.streak === 0)
+                ? `<span class="streak-add-btn" data-pid="${p._id}" data-action="streak-add" title="Добавить серию">＋</span>`
+                : '';
+
+            const progressPct = Math.round((p.total / 7) * 100);
+            const chipsHtml = p.data.map((active, idx) => {
+                const isWeekend = idx >= 5;
+                return `<span class="progress-day-chip ${active ? 'active' : ''} ${isWeekend ? 'weekend' : ''}" data-pid="${p._id}" data-day="${idx}"></span>`;
+            }).join('');
+
+            return `
+                <div class="participant-card rank-${rank} ${isEven ? 'row-even' : ''} ${isDirty ? 'dirty' : ''}" data-pid="${p._id}" style="--p:${(p.total/7).toFixed(3)}">
+                    <div class="rank-num">${rank}</div>
+                    <div class="name-cell">
+                        <div style="display:flex;align-items:center;gap:5px;min-width:0;overflow:hidden;width:100%;">
+                            <span class="participant-name" title="${p.name}">${p.name}</span>
                             ${streakHtml}
+                            ${addStreakHtml}
                         </div>
-                        <div class="rings-container">${rings}</div>
-                        <div class="flex justify-end items-center">
-                            <div class="score-box">
-                                <span class="score-value ${isTargetReached ? 'reached-target' : ''}">${p.total}</span><span class="score-total">/7</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill" style="width:${progressPct}%"></div>
+                                <div class="progress-bar-goal-line"></div>
                             </div>
                         </div>
                     </div>
-                `;
-            }).join('');
+                    <div class="days-grid">${daysHtml}</div>
+                    <div class="score-cell">
+                        <span class="score-main ${goalMet ? 'goal-met' : ''}">${p.total}</span><span class="score-target ${goalMet ? 'goal-met' : ''}">/7</span>
+                    </div>
+                </div>
+            `;
         }
 
-        function getDemoData() {
-            return [
-                { name: "Бодянчук Виталий (Демо)", data: [0, 1, 0, 1, 1, 1, 1], streak: 1 },
-                { name: "Мурадян Акоп (Демо)", data: [0, 1, 1, 0, 1, 1, 1], streak: 5 },
-                { name: "Халитов Михаил (Демо)", data: [0, 1, 1, 1, 1, 1, 1], streak: 2 },
-                { name: "Волк-Леванович Илья (Демо)", data: [0, 1, 0, 1, 0, 1, 0], streak: 0 },
-                { name: "Толстоноженко Александр (Демо)", data: [0, 1, 1, 0, 1, 0, 0], streak: 0 }
-            ];
+        function handleDayToggle(pid, dayIdx, el) {
+            const p = editableState.find(x => x._id === pid);
+            if (!p) return;
+            p.data[dayIdx] = p.data[dayIdx] ? 0 : 1;
+            p._dirty = true;
+            hasDirtyData = true;
+            if (el) {
+                el.classList.remove('bumping');
+                void el.offsetWidth;
+                el.classList.add('bumping');
+                el.addEventListener('animationend', () => el.classList.remove('bumping'), { once: true });
+            }
+            reorderAndRender();
+            updateResetBtn();
         }
 
-        // Превосходный экспорт в PNG в строгой пропорции 4:3
-        async function exportToPng() {
-            const originalElement = document.getElementById('capture-target');
-            const sandboxMirror = document.getElementById('sandbox-mirror');
-            
-            // 1. Очищаем зеркало песочницы и клонируем туда оригинальную таблицу
-            sandboxMirror.innerHTML = '';
-            const clone = originalElement.cloneNode(true);
-            sandboxMirror.appendChild(clone);
-            
-            // 2. Делаем снимок через html2canvas с повышенным DPI (scale: 2) для сочности и четкости букв
-            try {
-                const sandbox = document.getElementById('export-canvas-sandbox');
-                
-                const canvas = await html2canvas(sandbox, {
-                    width: 1200,
-                    height: 900,
-                    scale: 2, 
-                    backgroundColor: '#F9F6F1', 
-                    useCORS: true,
-                    logging: false
+        // Привязка событий к карточкам в edit-режиме
+        function bindCardEvents() {
+            const container = document.getElementById('card-list');
+
+            // Клики на квадратики дней (dots-режим)
+            container.querySelectorAll('.day-marker[data-pid]').forEach(el => {
+                el.addEventListener('click', () => handleDayToggle(el.dataset.pid, parseInt(el.dataset.day), el));
+            });
+
+            // Клики на чипы прогресс-режима (progress-режим)
+            container.querySelectorAll('.progress-day-chip[data-pid]').forEach(el => {
+                el.addEventListener('click', () => handleDayToggle(el.dataset.pid, parseInt(el.dataset.day), el));
+            });
+
+            // Огонёк + : прибавить streak
+            container.querySelectorAll('[data-action="streak-plus"]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const p = editableState.find(x => x._id === el.dataset.pid);
+                    if (!p) return;
+                    p.streak = Math.min(20, p.streak + 1);
+                    p._dirty = true; hasDirtyData = true;
+                    reorderAndRender(); updateResetBtn();
                 });
+            });
 
-                // 3. Создаем ссылку на скачивание готовой PNG карточки
-                const link = document.createElement('a');
-                link.download = `Fitness-Quarter-Week-${activeWeek}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            } catch (err) {
-                console.error("Ошибка при экспорте изображения:", err);
-            } finally {
-                sandboxMirror.innerHTML = '';
+            // Огонёк − : убавить streak (при 0 огонёк исчезает)
+            container.querySelectorAll('[data-action="streak-minus"]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const p = editableState.find(x => x._id === el.dataset.pid);
+                    if (!p) return;
+                    p.streak = Math.max(0, p.streak - 1);
+                    p._dirty = true; hasDirtyData = true;
+                    reorderAndRender(); updateResetBtn();
+                });
+            });
+
+            // Кнопка «добавить огонёк» — streak 0→1
+            container.querySelectorAll('[data-action="streak-add"]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const pid = el.dataset.pid;
+                    const p = editableState.find(x => x._id === pid);
+                    if (!p) return;
+
+                    p.streak = 1;
+                    p._dirty = true;
+                    hasDirtyData = true;
+
+                    reorderAndRender();
+                    updateResetBtn();
+                });
+            });
+        }
+
+        // ═════════════════════════════════════════════════
+        // РЕЖИМ РЕДАКТИРОВАНИЯ
+        // ═════════════════════════════════════════════════
+        function setEditMode(active) {
+            isEditMode = active;
+            const cardList = document.getElementById('card-list');
+            const btn = document.getElementById('btn-edit-mode');
+            const label = document.getElementById('edit-mode-label');
+
+            if (active) {
+                cardList.classList.add('edit-mode');
+                btn.classList.add('active');
+                label.textContent = 'Готово';
+                bindCardEvents();
+            } else {
+                cardList.classList.remove('edit-mode');
+                btn.classList.remove('active');
+                label.textContent = 'Редактировать';
+                // Перерисовываем без бордеров (isDirty теперь false т.к. isEditMode=false)
+                renderCards();
             }
         }
 
-        function toggleDebug() {
-            const panel = document.getElementById('debug-panel');
-            panel.classList.toggle('hidden');
+        function updateResetBtn() {
+            const btn = document.getElementById('btn-reset-edits');
+            if (hasDirtyData) btn.classList.add('visible');
+            else btn.classList.remove('visible');
         }
 
-        // Навешиваем дефолтное состояние при запуске
-        const storedWeek = localStorage.getItem('selected_week_tracker');
-        activeWeek = storedWeek ? parseInt(storedWeek, 10) : getDefaultWeek();
+        function resetEdits() {
+            editableState = cloneState(originalState);
+            hasDirtyData = false;
+            reorderAndRender();
+            updateResetBtn();
+        }
 
-        window.onload = fetchData;
+        document.getElementById('btn-edit-mode').addEventListener('click', () => {
+            setEditMode(!isEditMode);
+        });
+
+        document.getElementById('btn-reset-edits').addEventListener('click', () => {
+            resetEdits();
+        });
+
+        function renderParticipants(participants) {
+            const container = document.getElementById('card-list');
+
+            if (!participants || !Array.isArray(participants) || participants.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 30px 20px; color: var(--text-tertiary); font-size: 12px;">
+                        Нет данных для этой недели
+                    </div>`;
+                return;
+            }
+
+            // Нормализуем и добавляем уникальный _id для отслеживания
+            const normalized = participants.map((p, i) => ({
+                ...p,
+                _id: p.name.replace(/\s+/g, '_') + '_' + i,
+                _dirty: false,
+                data: Array.isArray(p.data) ? [...p.data] : [0,0,0,0,0,0,0],
+                total: Array.isArray(p.data) ? p.data.reduce((a, b) => a + (b ? 1 : 0), 0) : 0,
+                streak: parseInt(p.streak, 10) || 0
+            }));
+
+            // Сортируем
+            normalized.sort((a, b) => {
+                if (b.total !== a.total) return b.total - a.total;
+                return b.streak - a.streak;
+            });
+
+            // Сохраняем в состояние
+            originalState = cloneState(normalized);
+            editableState = cloneState(normalized);
+            hasDirtyData = false;
+            updateResetBtn();
+
+            renderCards();
+        }
+
+        function setStatus(type, text) {
+            const indicator = document.getElementById('status-indicator');
+            const dot = indicator.querySelector('.status-dot');
+            const txt = document.getElementById('status-text');
+
+            dot.className = 'status-dot';
+            if (type === 'live') dot.style.background = 'var(--accent-cool)';
+            else if (type === 'loading') dot.classList.add('pulse');
+            else if (type === 'warn') dot.classList.add('warn');
+            else if (type === 'error') dot.classList.add('error');
+            txt.textContent = text;
+        }
+
+        // ═════════════════════════════════════════════════
+        // ДАННЫЕ
+        // ═════════════════════════════════════════════════
+        async function fetchData(weekNumber) {
+            setStatus('loading', `Загрузка данных недели ${weekNumber}...`);
+            updateWeekUI(weekNumber);
+
+            const debugEl = document.getElementById('debug-json');
+
+            try {
+                const response = await fetch(`${CONFIG.SCRIPT_URL}?week=${weekNumber}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const result = await response.json();
+                state.lastFetchData = result;
+                debugEl.textContent = JSON.stringify(result, null, 2);
+
+                if (result && result.success && Array.isArray(result.data)) {
+                    renderParticipants(result.data);
+                    setStatus('live', `Обновлено · ${new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`);
+                } else {
+                    renderDemo();
+                    setStatus('warn', 'Демо-режим (структура данных невалидна)');
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+                debugEl.textContent = `Error: ${err.toString()}\n\nЗапрос: ${CONFIG.SCRIPT_URL}?week=${weekNumber}`;
+                renderDemo();
+                setStatus('warn', 'Демо-режим (нет связи с API)');
+            }
+        }
+
+        function renderDemo() {
+            const demoData = [
+                { name: "Мурадян Акоп",            data: [1,1,1,0,1,1,1], streak: 5 },
+                { name: "Халитов Михаил",          data: [1,1,1,1,1,1,0], streak: 2 },
+                { name: "Бодянчук Виталий",        data: [0,1,1,1,1,1,1], streak: 1 },
+                { name: "Гайнетдинов Руслан",      data: [1,1,1,1,1,0,1], streak: 8 },
+                { name: "Соколов Денис",           data: [1,0,1,1,1,1,0], streak: 3 },
+                { name: "Кузнецов Артём",          data: [1,1,1,0,1,0,1], streak: 4 },
+                { name: "Петренко Владимир",       data: [0,1,1,1,1,0,0], streak: 2 },
+                { name: "Иванов Сергей",           data: [1,1,0,1,1,0,0], streak: 1 },
+                { name: "Васильев Александр",      data: [1,0,1,1,0,1,0], streak: 0 },
+                { name: "Морозов Никита",          data: [0,1,1,0,1,0,1], streak: 0 },
+                { name: "Романов Илья",            data: [1,1,0,1,0,0,1], streak: 2 },
+                { name: "Волк-Леванович Илья",     data: [1,0,1,0,1,0,1], streak: 0 },
+                { name: "Толстоноженко Александр", data: [1,1,0,1,0,0,0], streak: 0 },
+                { name: "Гончаренко Виктор",       data: [0,1,1,0,0,1,0], streak: 0 },
+                { name: "Семёнов Григорий",        data: [1,0,0,1,0,0,0], streak: 0 }
+            ];
+            renderParticipants(demoData);
+        }
+
+        // ═════════════════════════════════════════════════
+        // НАВИГАЦИЯ
+        // ═════════════════════════════════════════════════
+        function goToWeek(n) {
+            const target = Math.max(1, Math.min(n, state.currentWeek));
+            state.viewedWeek = target;
+            // Сбрасываем режим редактирования при переходе на другую неделю
+            if (isEditMode) setEditMode(false);
+            fetchData(target);
+        }
+
+        document.getElementById('week-prev').addEventListener('click', () => goToWeek(state.viewedWeek - 1));
+        document.getElementById('week-next').addEventListener('click', () => goToWeek(state.viewedWeek + 1));
+        document.getElementById('nav-jump-current').addEventListener('click', () => goToWeek(state.currentWeek));
+
+        // ═════════════════════════════════════════════════
+        // PNG-ЭКСПОРТ
+        // ═════════════════════════════════════════════════
+        document.getElementById('btn-export-png').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-export-png');
+            const zone = document.getElementById('screenshot-zone');
+            const originalText = btn.querySelector('span').textContent;
+
+            // Если активен edit-режим — выходим перед скриншотом
+            if (isEditMode) setEditMode(false);
+
+            try {
+                btn.classList.add('loading');
+                btn.querySelector('span').textContent = 'Генерация...';
+                document.body.classList.add('exporting');
+
+                // Ждём чтобы CSS-переходы и скрытие элементов применились
+                await new Promise(r => setTimeout(r, 120));
+
+                // Читаем фон напрямую из переменной — html2canvas не умеет разворачивать CSS var()
+                const bgColor = '#F5F1E9';
+
+                const canvas = await html2canvas(zone, {
+                    backgroundColor: bgColor,
+                    scale: 3,
+                    logging: false,
+                    useCORS: true,
+                    allowTaint: false,
+                    // Захватываем только зону скриншота, игнорируем остальной DOM
+                    x: 0,
+                    y: 0,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: zone.offsetWidth,
+                    windowHeight: zone.offsetHeight,
+                    onclone: (clonedDoc) => {
+                        // В клоне снимаем edit-режим на случай если что-то осталось
+                        const cl = clonedDoc.getElementById('card-list');
+                        if (cl) cl.classList.remove('edit-mode');
+                        // Убираем dirty-бордеры
+                        clonedDoc.querySelectorAll('.dirty').forEach(el => el.classList.remove('dirty'));
+                        // Убираем streak-btn кнопки
+                        clonedDoc.querySelectorAll('.streak-controls').forEach(el => el.style.display = 'none');
+                        // Убираем streak-add-btn
+                        clonedDoc.querySelectorAll('.streak-add-btn').forEach(el => el.style.display = 'none');
+                    }
+                });
+
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    const weekStr = String(state.viewedWeek).padStart(2, '0');
+                    a.href = url;
+                    a.download = `fitness-kvartal-week-${weekStr}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 'image/png');
+
+            } catch (err) {
+                console.error('Export error:', err);
+                alert('Ошибка при экспорте: ' + err.message);
+            } finally {
+                document.body.classList.remove('exporting');
+                btn.classList.remove('loading');
+                btn.querySelector('span').textContent = originalText;
+            }
+        });
+
+        function toggleDebug() {
+            const panel = document.getElementById('debug-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // ═════════════════════════════════════════════════
+        // АВТО-ОБНОВЛЕНИЕ НЕДЕЛИ
+        // Если страница открыта давно (через полночь или 19:00 пн),
+        // currentWeek пересчитывается и данные перезагружаются
+        // ═════════════════════════════════════════════════
+        function watchWeek() {
+            setInterval(() => {
+                const newWeek = determineCurrentWeek();
+                // Если текущая неделя изменилась И пользователь смотрит на «текущую» неделю
+                if (newWeek !== state.currentWeek && state.viewedWeek === state.currentWeek) {
+                    state.currentWeek = newWeek;
+                    state.viewedWeek = newWeek;
+                    fetchData(newWeek);
+                } else if (newWeek !== state.currentWeek) {
+                    // Просто обновляем currentWeek чтобы кнопка → разблокировалась
+                    state.currentWeek = newWeek;
+                    document.getElementById('week-next').disabled = state.viewedWeek >= state.currentWeek;
+                }
+            }, 60 * 1000); // проверяем каждую минуту
+        }
+        // ═════════════════════════════════════════════════
+        window.addEventListener('load', () => {
+            initSagePicker();
+            initViewToggle();
+            state.currentWeek = determineCurrentWeek();
+            state.viewedWeek = state.currentWeek;
+            fetchData(state.viewedWeek);
+            watchWeek();
+        });
     </script>
 </body>
 </html>
