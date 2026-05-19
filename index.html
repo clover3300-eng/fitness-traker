@@ -1450,6 +1450,20 @@
             return arr.map(p => ({ ...p, data: [...p.data] }));
         }
 
+        // ═════════════════════════════════════════════════
+        // СОРТИРОВКА
+        // 1. По total убывающий
+        // 2. При равном total: сначала те у кого streak > 0, затем streak = 0
+        // 3. Внутри каждой группы — по алфавиту (А→Я)
+        // ═════════════════════════════════════════════════
+        function sortParticipants(a, b) {
+            if (b.total !== a.total) return b.total - a.total;
+            const aHasStreak = a.streak > 0 ? 1 : 0;
+            const bHasStreak = b.streak > 0 ? 1 : 0;
+            if (bHasStreak !== aHasStreak) return bHasStreak - aHasStreak;
+            return a.name.localeCompare(b.name, 'ru');
+        }
+
         // Пересчёт total и пересортировка с сохранением DOM-позиций через FLIP
         function reorderAndRender() {
             // Пересчитываем total для каждого
@@ -1457,11 +1471,8 @@
                 p.total = p.data.reduce((a, b) => a + (b ? 1 : 0), 0);
             });
 
-            // Сортируем
-            editableState.sort((a, b) => {
-                if (b.total !== a.total) return b.total - a.total;
-                return b.streak - a.streak;
-            });
+            // Сортируем: 1) по total убыв, 2) streak>0 перед streak=0, 3) по алфавиту внутри группы
+            editableState.sort(sortParticipants);
 
             // Перерисовываем все карточки
             renderCards();
@@ -1675,11 +1686,8 @@
                 streak: parseInt(p.streak, 10) || 0
             }));
 
-            // Сортируем
-            normalized.sort((a, b) => {
-                if (b.total !== a.total) return b.total - a.total;
-                return b.streak - a.streak;
-            });
+            // Сортируем: 1) по total убыв, 2) streak>0 перед streak=0, 3) по алфавиту внутри группы
+            normalized.sort(sortParticipants);
 
             // Сохраняем в состояние
             originalState = cloneState(normalized);
