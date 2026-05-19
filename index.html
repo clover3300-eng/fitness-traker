@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fitness Квартал — Трекер</title>
+    <!-- Inter — единственный шрифт который html2canvas корректно рендерит с кириллицей -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -50,8 +54,13 @@
         body {
             background-color: var(--bg-page);
             color: var(--text-primary);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-            font-feature-settings: "ss01", "cv01", "tnum";
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-feature-settings: "tnum";
+        }
+
+        /* Явно прописываем Inter для зоны скриншота — html2canvas берёт computed font-family */
+        .screenshot-zone, .screenshot-zone * {
+            font-family: 'Inter', sans-serif !important;
         }
 
         /* ═══════════════════════════════════════════════
@@ -1787,42 +1796,33 @@
             const zone = document.getElementById('screenshot-zone');
             const originalText = btn.querySelector('span').textContent;
 
-            // Если активен edit-режим — выходим перед скриншотом
+            // Выходим из edit-режима
             if (isEditMode) setEditMode(false);
+
+            // Запоминаем текущий вид и переключаемся в dots для экспорта
+            const wasProgress = currentView === 'progress';
+            if (wasProgress) applyView('dots');
 
             try {
                 btn.classList.add('loading');
                 btn.querySelector('span').textContent = 'Генерация...';
                 document.body.classList.add('exporting');
 
-                // Ждём чтобы CSS-переходы и скрытие элементов применились
-                await new Promise(r => setTimeout(r, 120));
-
-                // Читаем фон напрямую из переменной — html2canvas не умеет разворачивать CSS var()
-                const bgColor = '#F5F1E9';
+                // Ждём загрузки шрифтов — критично для кириллицы в html2canvas
+                await document.fonts.ready;
+                await new Promise(r => setTimeout(r, 150));
 
                 const canvas = await html2canvas(zone, {
-                    backgroundColor: bgColor,
-                    scale: 3,
+                    backgroundColor: '#FAF7F1',
+                    scale: 2,
                     logging: false,
                     useCORS: true,
                     allowTaint: false,
-                    // Захватываем только зону скриншота, игнорируем остальной DOM
-                    x: 0,
-                    y: 0,
-                    scrollX: 0,
-                    scrollY: 0,
-                    windowWidth: zone.offsetWidth,
-                    windowHeight: zone.offsetHeight,
                     onclone: (clonedDoc) => {
-                        // В клоне снимаем edit-режим на случай если что-то осталось
                         const cl = clonedDoc.getElementById('card-list');
                         if (cl) cl.classList.remove('edit-mode');
-                        // Убираем dirty-бордеры
                         clonedDoc.querySelectorAll('.dirty').forEach(el => el.classList.remove('dirty'));
-                        // Убираем streak-btn кнопки
                         clonedDoc.querySelectorAll('.streak-controls').forEach(el => el.style.display = 'none');
-                        // Убираем streak-add-btn
                         clonedDoc.querySelectorAll('.streak-add-btn').forEach(el => el.style.display = 'none');
                     }
                 });
@@ -1846,6 +1846,8 @@
                 document.body.classList.remove('exporting');
                 btn.classList.remove('loading');
                 btn.querySelector('span').textContent = originalText;
+                // Возвращаем предыдущий вид
+                if (wasProgress) applyView('progress');
             }
         });
 
