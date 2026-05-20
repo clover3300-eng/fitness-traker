@@ -918,18 +918,7 @@
             overflow: hidden; /* чтобы ::before не вылезал за border-radius */
         }
 
-        .view-progress .participant-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 2.5px;
-            height: 100%;
-            background: var(--training-color);
-            opacity: 0.5;
-            border-radius: 0;
-        }
+        .view-progress .participant-card::before { display: none; }
 
         .progress-bar-track { display: none; }
         .progress-bar-fill { display: none; }
