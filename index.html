@@ -310,7 +310,7 @@
         }
 
         .participant-card:last-child {
-            border-bottom: none;
+            border-bottom: 1px solid var(--border-soft);
         }
 
         .participant-card:hover {
@@ -449,14 +449,23 @@
 
         /* ═══ ФУТЕР ЗОНЫ СКРИНШОТА ═══ */
         .shot-footer {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid var(--border-soft);
+            margin-top: 0;
+            padding-top: 8px;
+            padding-bottom: 2px;
             display: flex;
-            justify-content: space-between;
+            flex-direction: row;
             align-items: center;
-            font-size: 9px;
+            gap: 10px;
+        }
+
+        .footer-brand {
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
             color: var(--text-tertiary);
+            opacity: 0.7;
+            flex-shrink: 0;
         }
 
         .footer-legend {
@@ -1106,7 +1115,7 @@
             display: none;
             position: absolute;
             left: calc(5 / 7 * 100%);
-            bottom: 3px;
+            top: 4px;
             transform: translateX(-50%);
             font-size: 7px;
             font-weight: 700;
@@ -1306,34 +1315,11 @@
                 </svg>
                 <span class="meta-label">Цель</span>
                 <span><span class="meta-value-highlight">5</span><span class="meta-of">/7</span></span>
-                <span class="goal-dots">
-                    <span class="goal-dot filled"></span>
-                    <span class="goal-dot filled"></span>
-                    <span class="goal-dot filled"></span>
-                    <span class="goal-dot filled"></span>
-                    <span class="goal-dot filled"></span>
-                    <span class="goal-dot"></span>
-                    <span class="goal-dot"></span>
-                </span>
             </div>
         </div>
 
-        <!-- Заголовки колонок -->
-        <div class="column-headers" style="position:relative;">
-            <div class="col-header-text col-header-rank">№</div>
-            <div class="col-header-text">Участник</div>
-            <div class="days-header-row col-header-days-label">
-                <span class="day-letter-header">П</span>
-                <span class="day-letter-header">В</span>
-                <span class="day-letter-header">С</span>
-                <span class="day-letter-header">Ч</span>
-                <span class="day-letter-header">П</span>
-                <span class="day-letter-header weekend">С</span>
-                <span class="day-letter-header weekend">В</span>
-            </div>
-            <div class="col-header-text col-header-progress" style="text-align:center;">Прогресс</div>
-            <div class="col-header-text col-header-score">Итог</div>
-            <!-- Label цели для режима Фон·цель — позиционируется абсолютно -->
+        <!-- goal-target-label для режима Фон·цель -->
+        <div class="goal-target-label-wrap" style="position:relative;height:0;">
             <div class="goal-target-label">цель</div>
         </div>
 
@@ -1357,21 +1343,8 @@
         </div>
 
         <!-- Футер -->
-        <div class="shot-footer">
-            <div class="footer-legend">
-                <!-- Легенда для dots-режима -->
-                <span class="legend-item legend-dots-only">
-                    <span class="legend-swatch swatch-active"></span> Тренировка
-                </span>
-                <span class="legend-item legend-dots-only">
-                    <span class="legend-swatch swatch-rest"></span> Отдых
-                </span>
-                <!-- Легенда для progress-режима -->
-                <span class="legend-item legend-progress-only">
-                    <span class="legend-swatch" style="background: var(--training-color); opacity: 0.5; width:3px; height:12px; border-radius:2px;"></span> Fitness Квартал
-                </span>
-            </div>
-            <div class="footer-brand" id="footer-date">—</div>
+        <div class="shot-footer" style="justify-content:flex-end;">
+            <span class="footer-brand">Fitness Квартал</span>
         </div>
     </div>
 
@@ -1772,7 +1745,6 @@
             document.getElementById('week-num-big').textContent = weekNumber;
             document.getElementById('date-range').textContent = formatDateRange(start, end);
             document.getElementById('nav-week-text').textContent = `Неделя ${weekNumber}`;
-            document.getElementById('footer-date').textContent = `Неделя ${weekNumber} · ${formatDateRange(start, end)}`;
 
             document.getElementById('week-prev').disabled = weekNumber <= 1;
             document.getElementById('week-next').disabled = weekNumber >= state.currentWeek;
