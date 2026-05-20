@@ -504,14 +504,14 @@
             align-items: center;
             gap: 6px;
             padding: 0 4px;
-            flex-wrap: wrap;
         }
 
         .toolbar-nav {
             display: flex;
             align-items: center;
             gap: 6px;
-            flex-shrink: 0;
+            flex-shrink: 1;
+            min-width: 0;
         }
 
         .toolbar-actions {
@@ -520,6 +520,23 @@
             gap: 6px;
             margin-left: auto;
             flex-shrink: 0;
+        }
+
+        .week-nav-current {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 10px;
+            height: 32px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-soft);
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .week-nav-btn {
@@ -544,21 +561,6 @@
         .week-nav-btn:disabled {
             opacity: 0.35;
             cursor: not-allowed;
-        }
-
-        .week-nav-current {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 0 12px;
-            height: 32px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-soft);
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            white-space: nowrap;
         }
 
         .week-nav-current button {
@@ -916,11 +918,10 @@
         /* Бар-враппер скрыт в обоих режимах — полоска теперь через ::before на карточке */
         .progress-bar-wrap { display: none; }
 
-        .view-progress .participant-card { min-height: 30px; }
-
-        /* В progress-режиме карточки позиционированы относительно для псевдоэлементов */
+        /* В progress-режиме: позиционирование + минимальная высота */
         .view-progress .participant-card {
             position: relative;
+            min-height: 40px;
         }
 
         .progress-bar-track { display: none; }
@@ -1042,12 +1043,13 @@
             background: linear-gradient(
                 to right,
                 rgba(var(--tc-rgb), 0.00) 0%,
-                rgba(var(--tc-rgb), 0.11) calc(var(--p) * 40%),
-                rgba(var(--tc-rgb), 0.13) calc(var(--p) * 70%),
-                rgba(var(--tc-rgb), 0.04) calc(var(--p) * 100%),
-                rgba(var(--tc-rgb), 0.00) calc(var(--p) * 100% + 32px)
+                rgba(var(--tc-rgb), 0.00) 6%,
+                rgba(var(--tc-rgb), 0.07) calc(var(--p) * 35%),
+                rgba(var(--tc-rgb), 0.09) calc(var(--p) * 65%),
+                rgba(var(--tc-rgb), 0.02) calc(var(--p) * 100%),
+                rgba(var(--tc-rgb), 0.00) calc(var(--p) * 100% + 40px)
             );
-            border-radius: 3px;
+            border-radius: 4px;
             pointer-events: none;
         }
 
@@ -1068,12 +1070,13 @@
             background: linear-gradient(
                 to right,
                 rgba(var(--tc-rgb), 0.00) 0%,
-                rgba(var(--tc-rgb), 0.11) calc(var(--p) * 40%),
-                rgba(var(--tc-rgb), 0.13) calc(var(--p) * 70%),
-                rgba(var(--tc-rgb), 0.04) calc(var(--p) * 100%),
-                rgba(var(--tc-rgb), 0.00) calc(var(--p) * 100% + 32px)
+                rgba(var(--tc-rgb), 0.00) 6%,
+                rgba(var(--tc-rgb), 0.07) calc(var(--p) * 35%),
+                rgba(var(--tc-rgb), 0.09) calc(var(--p) * 65%),
+                rgba(var(--tc-rgb), 0.02) calc(var(--p) * 100%),
+                rgba(var(--tc-rgb), 0.00) calc(var(--p) * 100% + 40px)
             );
-            border-radius: 3px;
+            border-radius: 4px;
             pointer-events: none;
         }
         .view-progress.rs-bgmark .participant-card::after {
@@ -1219,6 +1222,12 @@
             .footer-brand { display: none; }
             .color-picker { flex-wrap: wrap; }
             .color-options { width: 100%; }
+            /* На малых экранах скрываем текст в кнопках тулбара */
+            .btn-edit-mode span,
+            .btn-png-export span { display: none; }
+            .btn-edit-mode,
+            .btn-png-export { padding: 0 10px; }
+            .week-nav-current span#nav-week-text { display: none; }
         }
     </style>
 </head>
@@ -1803,7 +1812,7 @@
             }).join('');
 
             return `
-                <div class="participant-card rank-${rank} ${isEven ? 'row-even' : ''} ${isDirty ? 'dirty' : ''}" data-pid="${p._id}" style="--p:${(p.total/7).toFixed(3)};--score-intensity:${Math.max(0.18, (p.total/7)).toFixed(3)}">
+                <div class="participant-card rank-${rank} ${isEven ? 'row-even' : ''} ${isDirty ? 'dirty' : ''}" data-pid="${p._id}" style="--p:${(p.total/7).toFixed(3)};--score-intensity:${Math.max(0.42, (p.total/7)).toFixed(3)}">
                     <div class="rank-num">${rank}</div>
                     <div class="name-cell">
                         <div class="name-cell-row" style="display:flex;align-items:center;gap:5px;min-width:0;overflow:hidden;width:100%;">
