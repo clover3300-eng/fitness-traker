@@ -84,31 +84,48 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 0;
-            padding-bottom: 14px;
+            padding-bottom: 18px;
             border-bottom: 1px solid var(--border-soft);
+        }
+
+        .brand-title {
+            font-size: 22px;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 1;
+        }
+
+        .brand-bolt {
+            width: 20px;
+            height: 20px;
+            color: var(--accent-cool);
+            flex-shrink: 0;
+            opacity: 0.85;
+        }
+
+        .week-display-hash {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            letter-spacing: -0.01em;
+            line-height: 1;
+        }
+
+        .week-display-num {
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 0.9;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.04em;
         }
 
         .brand-block {
             display: flex;
             align-items: center;
-        }
-
-        .brand-title {
-            font-size: 19px;
-            letter-spacing: -0.02em;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            line-height: 1;
-        }
-
-        .brand-bolt {
-            width: 18px;
-            height: 18px;
-            color: var(--accent-cool);
-            flex-shrink: 0;
-            opacity: 0.85;
         }
 
         .brand-light {
@@ -152,32 +169,15 @@
             line-height: 1;
         }
 
-        .week-display-hash {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-tertiary);
-            letter-spacing: -0.01em;
-            line-height: 1;
-        }
-
-        .week-display-num {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-primary);
-            line-height: 0.9;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: -0.04em;
-        }
-
         /* ═══ МЕТА-ПОЛОСА — чистая строка без фона ═══ */
         .meta-strip {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 0;
-            padding: 12px 2px;
+            padding: 14px 2px;
             border-bottom: 1px solid var(--border-soft);
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-primary);
             letter-spacing: -0.005em;
@@ -249,7 +249,7 @@
             display: grid;
             grid-template-columns: 22px 1fr 114px 50px;
             gap: 8px;
-            padding: 10px 10px 10px 10px;
+            padding: 12px 10px;
         }
 
         .col-header-text {
@@ -1028,8 +1028,13 @@
         /* ════════════════════════════════
            СТИЛЬ 1 — «Фон»
            Заливка нарастает от нуля, пик в середине,
-           плавно растворяется за краем прогресса
+           плавно растворяется за краем прогресса.
+           Медалисты (rank 1–3) получают усиленный пик через --bg-boost.
         ════════════════════════════════ */
+        .view-progress.rs-bg .participant-card { --bg-peak: 0.09; }
+        .view-progress.rs-bg .participant-card.rank-1 { --bg-peak: 0.18; }
+        .view-progress.rs-bg .participant-card.rank-2 { --bg-peak: 0.15; }
+        .view-progress.rs-bg .participant-card.rank-3 { --bg-peak: 0.12; }
         .view-progress.rs-bg .participant-card {
             position: relative; overflow: hidden;
             align-items: center !important;
@@ -1044,8 +1049,8 @@
                 to right,
                 rgba(var(--tc-rgb), 0.00) 0%,
                 rgba(var(--tc-rgb), 0.00) 6%,
-                rgba(var(--tc-rgb), 0.07) calc(var(--p) * 35%),
-                rgba(var(--tc-rgb), 0.09) calc(var(--p) * 65%),
+                rgba(var(--tc-rgb), var(--bg-peak)) calc(var(--p) * 35%),
+                rgba(var(--tc-rgb), var(--bg-peak)) calc(var(--p) * 65%),
                 rgba(var(--tc-rgb), 0.02) calc(var(--p) * 100%),
                 rgba(var(--tc-rgb), 0.00) calc(var(--p) * 100% + 40px)
             );
@@ -1055,8 +1060,12 @@
 
         /* ════════════════════════════════
            СТИЛЬ 2 — «Фон · цель»
-           То же + тихий маркер цели на 5/7
+           То же + маркер цели на 5/7 с подписью
         ════════════════════════════════ */
+        .view-progress.rs-bgmark .participant-card { --bg-peak: 0.09; }
+        .view-progress.rs-bgmark .participant-card.rank-1 { --bg-peak: 0.18; }
+        .view-progress.rs-bgmark .participant-card.rank-2 { --bg-peak: 0.15; }
+        .view-progress.rs-bgmark .participant-card.rank-3 { --bg-peak: 0.12; }
         .view-progress.rs-bgmark .participant-card {
             position: relative; overflow: hidden;
             align-items: center !important;
@@ -1071,24 +1080,43 @@
                 to right,
                 rgba(var(--tc-rgb), 0.00) 0%,
                 rgba(var(--tc-rgb), 0.00) 6%,
-                rgba(var(--tc-rgb), 0.07) calc(var(--p) * 35%),
-                rgba(var(--tc-rgb), 0.09) calc(var(--p) * 65%),
+                rgba(var(--tc-rgb), var(--bg-peak)) calc(var(--p) * 35%),
+                rgba(var(--tc-rgb), var(--bg-peak)) calc(var(--p) * 65%),
                 rgba(var(--tc-rgb), 0.02) calc(var(--p) * 100%),
                 rgba(var(--tc-rgb), 0.00) calc(var(--p) * 100% + 40px)
             );
             border-radius: 4px;
             pointer-events: none;
         }
+        /* маркер цели — вертикальная линия */
         .view-progress.rs-bgmark .participant-card::after {
             display: block;
             position: absolute;
             left: calc(5 / 7 * 100%);
-            top: 25%; bottom: 25%;
+            top: 20%; bottom: 20%;
             width: 1px;
             background: var(--border-medium);
             opacity: 0.45;
             pointer-events: none;
         }
+        /* label «цель» в заголовке колонок — только в режиме Фон·цель */
+        .goal-target-label {
+            display: none;
+            position: absolute;
+            left: calc(5 / 7 * 100%);
+            bottom: 3px;
+            transform: translateX(-50%);
+            font-size: 7px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            opacity: 0.55;
+            white-space: nowrap;
+            pointer-events: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .show-goal-label .goal-target-label { display: block; }
 
         /* Переключатель вида — тёмная тема */
         .view-toggle-row {
@@ -1285,7 +1313,7 @@
         </div>
 
         <!-- Заголовки колонок -->
-        <div class="column-headers">
+        <div class="column-headers" style="position:relative;">
             <div class="col-header-text col-header-rank">№</div>
             <div class="col-header-text">Участник</div>
             <div class="days-header-row col-header-days-label">
@@ -1299,6 +1327,8 @@
             </div>
             <div class="col-header-text col-header-progress" style="text-align:center;">Прогресс</div>
             <div class="col-header-text col-header-score">Итог</div>
+            <!-- Label цели для режима Фон·цель — позиционируется абсолютно -->
+            <div class="goal-target-label">цель</div>
         </div>
 
         <!-- Карточки -->
@@ -1563,8 +1593,10 @@
         function applyRowStyle(style) {
             currentRowStyle = style;
             const cardList = document.getElementById('card-list');
+            const zone = document.getElementById('screenshot-zone');
             ALL_ROW_STYLES.forEach(s => cardList.classList.remove(s));
             cardList.classList.add(style);
+            zone.classList.toggle('show-goal-label', style === 'rs-bgmark');
             document.querySelectorAll('.row-style-option').forEach(btn => {
                 btn.classList.toggle('active', 'rs-' + btn.dataset.style === style);
             });
