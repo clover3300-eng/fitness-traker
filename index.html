@@ -215,18 +215,14 @@
 
         .meta-value-highlight {
             color: var(--accent-warm);
-            font-weight: 800;
+            font-weight: 700;
             font-variant-numeric: tabular-nums;
-            font-size: 17px;
-            letter-spacing: -0.03em;
-            line-height: 1;
+            margin-right: 1px;
         }
 
         .meta-of {
             color: var(--text-tertiary);
-            font-weight: 600;
-            font-size: 9px;
-            letter-spacing: 0.02em;
+            font-weight: 500;
             margin-right: 6px;
         }
 
@@ -1372,7 +1368,7 @@
                     <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
                 </svg>
                 <span class="meta-label">Цель</span>
-                <span style="display:inline-flex;align-items:baseline;gap:1px;"><span class="meta-value-highlight">5</span><span class="meta-of">/7</span></span>
+                <span><span class="meta-value-highlight">5</span><span class="meta-of">/7</span></span>
             </div>
         </div>
 
@@ -2233,31 +2229,44 @@
             // Выходим из edit-режима
             if (isEditMode) setEditMode(false);
 
-            // Запоминаем текущий вид и переключаемся в dots для экспорта
-            const wasProgress = currentView === 'progress';
-            if (wasProgress) applyView('dots');
-
             try {
                 btn.classList.add('loading');
                 btn.querySelector('span').textContent = 'Генерация...';
                 document.body.classList.add('exporting');
 
-                // Ждём загрузки шрифтов — критично для кириллицы в html2canvas
+                // Ждём загрузки шрифтов — критично для кириллицы
                 await document.fonts.ready;
-                await new Promise(r => setTimeout(r, 150));
+                await new Promise(r => setTimeout(r, 300));
 
                 const canvas = await html2canvas(zone, {
                     backgroundColor: '#FAF7F1',
                     scale: 2,
                     logging: false,
                     useCORS: true,
-                    allowTaint: false,
-                    onclone: (clonedDoc) => {
+                    allowTaint: true,
+                    foreignObjectRendering: false,
+                    onclone: (clonedDoc, clonedEl) => {
+                        // Убираем интерактивные элементы
                         const cl = clonedDoc.getElementById('card-list');
                         if (cl) cl.classList.remove('edit-mode');
                         clonedDoc.querySelectorAll('.dirty').forEach(el => el.classList.remove('dirty'));
                         clonedDoc.querySelectorAll('.streak-controls').forEach(el => el.style.display = 'none');
                         clonedDoc.querySelectorAll('.streak-add-btn').forEach(el => el.style.display = 'none');
+
+                        // Принудительно прописываем Inter на все текстовые элементы
+                        clonedDoc.querySelectorAll('*').forEach(el => {
+                            el.style.fontFamily = "'Inter', sans-serif";
+                        });
+
+                        // В квадратном формате фиксируем размер зоны
+                        if (currentFormat === 'square') {
+                            clonedEl.style.width = '560px';
+                            clonedEl.style.height = '560px';
+                            clonedEl.style.minHeight = '560px';
+                        } else {
+                            clonedEl.style.width = '560px';
+                            clonedEl.style.height = 'auto';
+                        }
                     }
                 });
 
@@ -2280,8 +2289,6 @@
                 document.body.classList.remove('exporting');
                 btn.classList.remove('loading');
                 btn.querySelector('span').textContent = originalText;
-                // Возвращаем предыдущий вид
-                if (wasProgress) applyView('progress');
             }
         });
 
