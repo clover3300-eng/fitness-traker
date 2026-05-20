@@ -848,9 +848,11 @@
         .btn-edit-mode {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             padding: 0 12px;
             height: 32px;
+            min-width: 136px;
             background: var(--card-bg);
             color: var(--text-secondary);
             border: 1px solid var(--border-soft);
@@ -1392,15 +1394,6 @@
         </div>
 
         <div class="toolbar-actions">
-            <!-- Кнопка сброса правок -->
-            <button class="btn-reset-edits" id="btn-reset-edits" title="Сбросить все правки">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                    <path d="M3 3v5h5"/>
-                </svg>
-                <span>Сбросить</span>
-            </button>
-
             <!-- Кнопка режима редактирования -->
             <button class="btn-edit-mode" id="btn-edit-mode" title="Редактировать данные перед скриншотом">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1408,6 +1401,15 @@
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                 </svg>
                 <span id="edit-mode-label">Редактировать</span>
+            </button>
+
+            <!-- Кнопка сброса правок -->
+            <button class="btn-reset-edits" id="btn-reset-edits" title="Сбросить все правки">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                </svg>
+                <span>Сбросить</span>
             </button>
 
             <button class="btn-png-export" id="btn-export-png">
