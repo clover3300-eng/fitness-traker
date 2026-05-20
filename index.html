@@ -1728,6 +1728,21 @@
             updateWeekUI(weekNumber);
 
             const debugEl = document.getElementById('debug-json');
+            const { start, end } = computeWeekRange(weekNumber);
+
+            // Диагностика — показываем что именно запрашиваем
+            const diagHeader = [
+                `▸ ЗАПРОС`,
+                `  Неделя:    ${weekNumber}`,
+                `  Диапазон:  ${formatDateRange(start, end)}`,
+                `  URL:       ${CONFIG.SCRIPT_URL}?week=${weekNumber}`,
+                `  МСК время: ${new Date().toLocaleString('ru-RU', { timeZone: CONFIG.TIMEZONE })}`,
+                `  Grace:     ${getMoscowDateParts().weekday === CONFIG.GRACE_PERIOD.dayOfWeek && getMoscowDateParts().hour < CONFIG.GRACE_PERIOD.untilHour ? 'ДА (показываем прошлую неделю)' : 'нет'}`,
+                ``,
+                `▸ ОТВЕТ API`
+            ].join('\n');
+
+            debugEl.textContent = diagHeader + '\n  Загрузка...';
 
             try {
                 const response = await fetch(`${CONFIG.SCRIPT_URL}?week=${weekNumber}`);
@@ -1735,7 +1750,7 @@
 
                 const result = await response.json();
                 state.lastFetchData = result;
-                debugEl.textContent = JSON.stringify(result, null, 2);
+                debugEl.textContent = diagHeader + '\n' + JSON.stringify(result, null, 2);
 
                 if (result && result.success && Array.isArray(result.data)) {
                     renderParticipants(result.data);
@@ -1746,7 +1761,7 @@
                 }
             } catch (err) {
                 console.error('Fetch error:', err);
-                debugEl.textContent = `Error: ${err.toString()}\n\nЗапрос: ${CONFIG.SCRIPT_URL}?week=${weekNumber}`;
+                debugEl.textContent = diagHeader + '\n  Error: ' + err.toString();
                 renderDemo();
                 setStatus('warn', 'Демо-режим (нет связи с API)');
             }
