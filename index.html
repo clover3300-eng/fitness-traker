@@ -1138,6 +1138,39 @@
         .view-progress.rs-bgmark .participant-card:first-child {
             border-top: 1px solid rgba(var(--tc-rgb), 0.18);
         }
+        /* ═══ КВАДРАТНЫЙ ФОРМАТ 1:1 ═══ */
+        .format-square .screenshot-zone {
+            max-width: 560px;
+            height: 560px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .format-square .card-list {
+            flex: 1;
+            overflow: hidden;
+        }
+        .format-square .participant-card {
+            padding: 5px 10px !important;
+            min-height: 0 !important;
+        }
+        .format-square .participant-name { font-size: 11px; }
+        .format-square .score-main { font-size: 13px; }
+        .format-square .score-target { font-size: 8px; }
+        .format-square .rank-num { font-size: 11px; }
+        .format-square .rank-1 .rank-num,
+        .format-square .rank-2 .rank-num,
+        .format-square .rank-3 .rank-num { font-size: 12px; }
+        .format-square .day-marker { width: 9px; height: 9px; }
+        .format-square .streak-inline { font-size: 9px; }
+        .format-square .brand-title { font-size: 18px; }
+        .format-square .week-display-num { font-size: 28px; }
+        .format-square .shot-header { padding-bottom: 12px; }
+        .format-square .meta-strip { padding: 10px 2px; font-size: 11px; }
+        .format-square .meta-value-highlight { font-size: 13px; }
+        .format-square .shot-footer { padding-top: 10px; }
+        .format-square .skeleton-card { height: 24px; }
+
         .view-toggle-row {
             display: flex;
             align-items: center;
@@ -1457,6 +1490,21 @@
             </div>
         </div>
 
+        <!-- Переключатель формата -->
+        <div class="view-toggle-row">
+            <span class="view-toggle-label">Формат</span>
+            <div class="view-options" id="format-options">
+                <button class="view-option active" data-format="tape">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:18px;border:1px solid rgba(255,255,255,0.3);border-radius:2px;font-size:8px;color:currentColor;opacity:0.8;">▬</span>
+                    <span>Лента</span>
+                </button>
+                <button class="view-option" data-format="square">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border:1px solid rgba(255,255,255,0.3);border-radius:2px;font-size:8px;color:currentColor;opacity:0.8;">■</span>
+                    <span>Квадрат 1:1</span>
+                </button>
+            </div>
+        </div>
+
         <!-- Стиль строки — только для режима Прогресс -->
         <div class="row-style-toggle-row">
             <span class="row-style-label">Стиль строки</span>
@@ -1619,6 +1667,30 @@
             applyRowStyle(saved);
             document.querySelectorAll('.row-style-option').forEach(btn => {
                 btn.addEventListener('click', () => applyRowStyle('rs-' + btn.dataset.style));
+            });
+        }
+
+        // ═════════════════════════════════════════════════
+        // ФОРМАТ: ЛЕНТА / КВАДРАТ
+        // ═════════════════════════════════════════════════
+        const FORMAT_KEY = 'fk_format';
+        let currentFormat = 'tape';
+
+        function applyFormat(format) {
+            currentFormat = format;
+            document.body.classList.toggle('format-square', format === 'square');
+            document.querySelectorAll('[data-format]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.format === format);
+            });
+            try { localStorage.setItem(FORMAT_KEY, format); } catch(e) {}
+        }
+
+        function initFormatToggle() {
+            let saved = 'tape';
+            try { const s = localStorage.getItem(FORMAT_KEY); if (s) saved = s; } catch(e) {}
+            applyFormat(saved);
+            document.querySelectorAll('[data-format]').forEach(btn => {
+                btn.addEventListener('click', () => applyFormat(btn.dataset.format));
             });
         }
         // ═════════════════════════════════════════════════
@@ -2222,6 +2294,7 @@
             initSagePicker();
             initViewToggle();
             initRowStyleToggle();
+            initFormatToggle();
             state.currentWeek = determineCurrentWeek();
             state.viewedWeek = state.currentWeek;
             fetchData(state.viewedWeek);
