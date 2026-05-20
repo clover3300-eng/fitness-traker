@@ -1120,7 +1120,11 @@
         }
         .show-goal-label .goal-target-label { display: block; }
 
-        /* Переключатель вида — тёмная тема */
+        /* Плавный вход — первая карточка получает тонкую шалфейную верхнюю границу */
+        .view-progress.rs-bg .participant-card:first-child,
+        .view-progress.rs-bgmark .participant-card:first-child {
+            border-top: 1px solid rgba(var(--tc-rgb), 0.18);
+        }
         .view-toggle-row {
             display: flex;
             align-items: center;
@@ -1566,14 +1570,16 @@
                 zone.classList.add('view-progress');
                 cardList.classList.add('view-progress');
                 if (picker) picker.classList.add('view-is-progress');
-                // применяем текущий стиль строк
-                ALL_ROW_STYLES.forEach(s => cardList.classList.remove(s));
-                cardList.classList.add(currentRowStyle);
+                // применяем текущий стиль строк (включая градиент шапки)
+                applyRowStyle(currentRowStyle);
             } else {
                 zone.classList.remove('view-progress');
                 cardList.classList.remove('view-progress');
                 if (picker) picker.classList.remove('view-is-progress');
                 ALL_ROW_STYLES.forEach(s => cardList.classList.remove(s));
+                // убираем градиент шапки
+                const headers = zone.querySelector('.column-headers');
+                if (headers) headers.style.background = '';
             }
 
             document.querySelectorAll('.view-option').forEach(btn => {
@@ -1596,9 +1602,20 @@
             currentRowStyle = style;
             const cardList = document.getElementById('card-list');
             const zone = document.getElementById('screenshot-zone');
+            const headers = zone.querySelector('.column-headers');
             ALL_ROW_STYLES.forEach(s => cardList.classList.remove(s));
             cardList.classList.add(style);
             zone.classList.toggle('show-goal-label', style === 'rs-bgmark');
+            zone.classList.toggle('show-bg-style', style === 'rs-bg' || style === 'rs-bgmark');
+            // Применяем/убираем градиент на шапке колонок напрямую
+            if (headers) {
+                if (style === 'rs-bg' || style === 'rs-bgmark') {
+                    const rgb = getComputedStyle(document.documentElement).getPropertyValue('--tc-rgb').trim() || '143, 168, 144';
+                    headers.style.background = `linear-gradient(to right, rgba(${rgb},0) 0%, rgba(${rgb},0) 6%, rgba(${rgb},0.05) 50%, rgba(${rgb},0.02) 80%, rgba(${rgb},0) 100%)`;
+                } else {
+                    headers.style.background = '';
+                }
+            }
             document.querySelectorAll('.row-style-option').forEach(btn => {
                 btn.classList.toggle('active', 'rs-' + btn.dataset.style === style);
             });
@@ -1619,6 +1636,13 @@
             document.documentElement.style.setProperty('--training-color', color);
             document.documentElement.style.setProperty('--training-color-glow', glow);
             document.documentElement.style.setProperty('--tc-rgb', rgb);
+            // Обновляем градиент шапки если он активен
+            if (currentRowStyle === 'rs-bg' || currentRowStyle === 'rs-bgmark') {
+                const headers = document.querySelector('.column-headers');
+                if (headers) {
+                    headers.style.background = `linear-gradient(to right, rgba(${rgb},0) 0%, rgba(${rgb},0) 6%, rgba(${rgb},0.05) 50%, rgba(${rgb},0.02) 80%, rgba(${rgb},0) 100%)`;
+                }
+            }
             
             // Обновляем активную кнопку
             document.querySelectorAll('.color-option').forEach(btn => {
