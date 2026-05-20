@@ -242,19 +242,25 @@
             background: var(--accent-cool);
         }
 
-        /* ═══ ЗАГОЛОВКИ КОЛОНОК — только дни над квадратиками ═══ */
+        /* ═══ ЗАГОЛОВКИ КОЛОНОК ═══ */
         .column-headers {
             display: grid;
             grid-template-columns: 22px 1fr 114px 50px;
             gap: 8px;
-            padding: 0 10px 5px 10px;
+            padding: 0 10px 7px 10px;
         }
 
-        /* №, Участник, Итог — невидимы но держат grid */
         .col-header-text {
-            visibility: hidden;
-            font-size: 8.5px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            opacity: 0.7;
         }
+
+        .col-header-rank { text-align: center; }
+        .col-header-score { text-align: right; }
 
         .days-header-row {
             display: grid;
@@ -264,15 +270,22 @@
         }
 
         .day-letter-header {
-            font-size: 8.5px;
-            font-weight: 600;
+            font-size: 9px;
+            font-weight: 700;
             color: var(--text-tertiary);
-            letter-spacing: 0.03em;
+            letter-spacing: 0.04em;
             line-height: 1;
             opacity: 0.7;
         }
 
         .day-letter-header.weekend { opacity: 0.35; }
+
+        /* В progress-режиме скрываем колонку дней в заголовке */
+        .view-progress .column-headers {
+            grid-template-columns: 22px 1fr 50px;
+        }
+        .view-progress .col-header-days-label { display: none; }
+        .view-progress .col-header-progress { display: none; }
 
         /* ═══ КАРТОЧКИ УЧАСТНИКОВ ═══ */
         .card-list {
