@@ -314,7 +314,7 @@
         }
 
         .participant-card:last-child {
-            border-bottom: 1px solid var(--border-soft);
+            border-bottom: none;
         }
 
         .participant-card:hover {
@@ -454,8 +454,9 @@
         /* ═══ ФУТЕР ЗОНЫ СКРИНШОТА ═══ */
         .shot-footer {
             margin-top: 0;
-            padding-top: 14px;
+            padding-top: 10px;
             padding-bottom: 4px;
+            border-top: 1px solid var(--border-soft);
             display: flex;
             flex-direction: row;
             align-items: center;
@@ -1147,12 +1148,32 @@
             flex-direction: column;
         }
         .format-square .card-list {
-            flex: 1;
             overflow: hidden;
+        }
+        .format-square .shot-footer {
+            margin-top: auto;
+        }
+        /* Равномерные отступы вокруг таблицы в квадрате */
+        .format-square .meta-strip {
+            margin-bottom: auto;
         }
         .format-square .participant-card {
             padding: 5px 10px !important;
             min-height: 0 !important;
+            align-items: center !important;
+        }
+        .format-square .view-progress .participant-card,
+        .format-square .participant-card.rs-default,
+        .format-square .participant-card.rs-bg,
+        .format-square .participant-card.rs-bgmark {
+            padding-top: 5px !important;
+            padding-bottom: 5px !important;
+            align-items: center !important;
+        }
+        .format-square .rank-num,
+        .format-square .name-cell,
+        .format-square .score-cell {
+            padding-bottom: 0 !important;
         }
         .format-square .participant-name { font-size: 11px; }
         .format-square .score-main { font-size: 13px; }
