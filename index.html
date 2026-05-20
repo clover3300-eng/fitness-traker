@@ -1041,7 +1041,7 @@
         }
         .view-progress.rs-bg .participant-card::before {
             display: block;
-            position: absolute; left: 0; top: 4px; bottom: 4px;
+            position: absolute; left: 0; top: 0; bottom: 0;
             width: 100%;
             background: linear-gradient(
                 to right,
@@ -1052,9 +1052,20 @@
                 rgba(var(--tc-rgb), 0.02) calc(var(--p) * 100%),
                 rgba(var(--tc-rgb), 0.00) calc(var(--p) * 100% + 40px)
             );
-            border-radius: 4px;
             pointer-events: none;
         }
+        .view-progress.rs-bg .participant-card:first-child::before,
+        .view-progress.rs-bgmark .participant-card:first-child::before {
+            display: block;
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 50%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 50%);
+        }
+        .view-progress.rs-bg .participant-card:last-child::before,
+        .view-progress.rs-bgmark .participant-card:last-child::before {
+            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        }
+        /* Лёгкий шалфейный оттенок на мета-полосу — управляется через JS в applyRowStyle */
 
         /* ════════════════════════════════
            СТИЛЬ 2 — «Фон · цель»
@@ -1072,7 +1083,7 @@
         }
         .view-progress.rs-bgmark .participant-card::before {
             display: block;
-            position: absolute; left: 0; top: 4px; bottom: 4px;
+            position: absolute; left: 0; top: 0; bottom: 0;
             width: 100%;
             background: linear-gradient(
                 to right,
@@ -1083,7 +1094,6 @@
                 rgba(var(--tc-rgb), 0.02) calc(var(--p) * 100%),
                 rgba(var(--tc-rgb), 0.00) calc(var(--p) * 100% + 40px)
             );
-            border-radius: 4px;
             pointer-events: none;
         }
         /* маркер цели — вертикальная линия */
@@ -1116,11 +1126,11 @@
         }
         .show-goal-label .goal-target-label { display: block; }
 
-        /* Плавный вход — первая карточка получает тонкую шалфейную верхнюю границу */
         .view-progress.rs-bg .participant-card:first-child,
         .view-progress.rs-bgmark .participant-card:first-child {
-            border-top: 1px solid rgba(var(--tc-rgb), 0.18);
+            overflow: visible;
         }
+
         /* ═══ КВАДРАТНЫЙ ФОРМАТ 1:1 ═══ */
         .format-square .screenshot-zone {
             max-width: 560px;
@@ -1644,20 +1654,11 @@
             currentRowStyle = style;
             const cardList = document.getElementById('card-list');
             const zone = document.getElementById('screenshot-zone');
-            const headers = zone.querySelector('.column-headers');
             ALL_ROW_STYLES.forEach(s => cardList.classList.remove(s));
             cardList.classList.add(style);
             zone.classList.toggle('show-goal-label', style === 'rs-bgmark');
             zone.classList.toggle('show-bg-style', style === 'rs-bg' || style === 'rs-bgmark');
-            // Применяем/убираем градиент на шапке колонок напрямую
-            if (headers) {
-                if (style === 'rs-bg' || style === 'rs-bgmark') {
-                    const rgb = getComputedStyle(document.documentElement).getPropertyValue('--tc-rgb').trim() || '143, 168, 144';
-                    headers.style.background = `linear-gradient(to right, rgba(${rgb},0) 0%, rgba(${rgb},0) 6%, rgba(${rgb},0.05) 50%, rgba(${rgb},0.02) 80%, rgba(${rgb},0) 100%)`;
-                } else {
-                    headers.style.background = '';
-                }
-            }
+
             document.querySelectorAll('.row-style-option').forEach(btn => {
                 btn.classList.toggle('active', 'rs-' + btn.dataset.style === style);
             });
@@ -1702,13 +1703,7 @@
             document.documentElement.style.setProperty('--training-color', color);
             document.documentElement.style.setProperty('--training-color-glow', glow);
             document.documentElement.style.setProperty('--tc-rgb', rgb);
-            // Обновляем градиент шапки если он активен
-            if (currentRowStyle === 'rs-bg' || currentRowStyle === 'rs-bgmark') {
-                const headers = document.querySelector('.column-headers');
-                if (headers) {
-                    headers.style.background = `linear-gradient(to right, rgba(${rgb},0) 0%, rgba(${rgb},0) 6%, rgba(${rgb},0.05) 50%, rgba(${rgb},0.02) 80%, rgba(${rgb},0) 100%)`;
-                }
-            }
+
             
             // Обновляем активную кнопку
             document.querySelectorAll('.color-option').forEach(btn => {
