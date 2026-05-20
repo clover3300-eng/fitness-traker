@@ -215,14 +215,18 @@
 
         .meta-value-highlight {
             color: var(--accent-warm);
-            font-weight: 700;
+            font-weight: 800;
             font-variant-numeric: tabular-nums;
-            margin-right: 1px;
+            font-size: 15px;
+            letter-spacing: -0.03em;
+            line-height: 1;
         }
 
         .meta-of {
             color: var(--text-tertiary);
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 9px;
+            letter-spacing: 0.02em;
             margin-right: 6px;
         }
 
@@ -450,8 +454,8 @@
         /* ═══ ФУТЕР ЗОНЫ СКРИНШОТА ═══ */
         .shot-footer {
             margin-top: 0;
-            padding-top: 8px;
-            padding-bottom: 2px;
+            padding-top: 14px;
+            padding-bottom: 4px;
             display: flex;
             flex-direction: row;
             align-items: center;
@@ -1314,7 +1318,7 @@
                     <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
                 </svg>
                 <span class="meta-label">Цель</span>
-                <span><span class="meta-value-highlight">5</span><span class="meta-of">/7</span></span>
+                <span style="display:inline-flex;align-items:baseline;gap:1px;"><span class="meta-value-highlight">5</span><span class="meta-of">/7</span></span>
             </div>
         </div>
 
@@ -1343,8 +1347,20 @@
         </div>
 
         <!-- Футер -->
-        <div class="shot-footer" style="justify-content:flex-end;">
+        <div class="shot-footer" style="justify-content:flex-end;align-items:center;gap:3px;">
             <span class="footer-brand">Fitness Квартал</span>
+            <svg width="11" height="12" viewBox="0 0 44 48" fill="none" style="opacity:0.65;flex-shrink:0;">
+                <path d="M22 21 C22 21 16 20 14 15 C12 10 16 6 19 9 C21 11 22 14 22 21Z" fill="#708A74"/>
+                <path d="M22 21 C22 21 28 20 30 15 C32 10 28 6 25 9 C23 11 22 14 22 21Z" fill="#708A74"/>
+                <path d="M23 22 C23 22 24 16 29 14 C34 12 38 16 35 19 C33 21 26 22 23 22Z" fill="#708A74"/>
+                <path d="M23 22 C23 22 24 28 29 30 C34 32 38 28 35 25 C33 23 26 22 23 22Z" fill="#708A74"/>
+                <path d="M22 23 C22 23 28 24 30 29 C32 34 28 38 25 35 C23 33 22 30 22 23Z" fill="#708A74"/>
+                <path d="M22 23 C22 23 16 24 14 29 C12 34 16 38 19 35 C21 33 22 30 22 23Z" fill="#708A74"/>
+                <path d="M21 22 C21 22 20 16 15 14 C10 12 6 16 9 19 C11 21 18 22 21 22Z" fill="#708A74"/>
+                <path d="M21 22 C21 22 20 28 15 30 C10 32 6 28 9 25 C11 23 18 22 21 22Z" fill="#708A74"/>
+                <circle cx="22" cy="22" r="3.5" fill="#4A6050"/>
+                <path d="M22 38 C21 42 21 45 22 47" stroke="#5C7060" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+            </svg>
         </div>
     </div>
 
