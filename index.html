@@ -433,6 +433,20 @@
         .score-main.goal-met { color: var(--accent-warm); }
         .score-target.goal-met { color: var(--training-color); }
 
+        /* В progress-режиме: цвет score определяется через --score-intensity (0–1) */
+        .view-progress .score-main {
+            color: color-mix(in srgb, var(--text-primary) calc(var(--score-intensity, 1) * 100%), var(--border-medium));
+        }
+        .view-progress .score-main.goal-met {
+            color: color-mix(in srgb, var(--text-primary) calc(var(--score-intensity, 1) * 100%), var(--border-medium));
+        }
+        .view-progress .score-target {
+            color: color-mix(in srgb, var(--text-tertiary) calc(var(--score-intensity, 1) * 100%), var(--border-soft));
+        }
+        .view-progress .score-target.goal-met {
+            color: color-mix(in srgb, var(--text-tertiary) calc(var(--score-intensity, 1) * 100%), var(--border-soft));
+        }
+
         /* ═══ ФУТЕР ЗОНЫ СКРИНШОТА ═══ */
         .shot-footer {
             margin-top: 10px;
@@ -1560,7 +1574,7 @@
             }).join('');
 
             return `
-                <div class="participant-card rank-${rank} ${isEven ? 'row-even' : ''} ${isDirty ? 'dirty' : ''}" data-pid="${p._id}" style="--p:${(p.total/7).toFixed(3)}">
+                <div class="participant-card rank-${rank} ${isEven ? 'row-even' : ''} ${isDirty ? 'dirty' : ''}" data-pid="${p._id}" style="--p:${(p.total/7).toFixed(3)};--score-intensity:${Math.max(0.18, (p.total/7)).toFixed(3)}">
                     <div class="rank-num">${rank}</div>
                     <div class="name-cell">
                         <div style="display:flex;align-items:center;gap:5px;min-width:0;overflow:hidden;width:100%;">
